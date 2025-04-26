@@ -1,0 +1,147 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UsersRoles {
+  USER
+  ADMIN
+}
+
+enum TasksTypes {
+  DEFAULT
+  SUBTASKS
+}
+
+enum TasksHardLevels {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum SubTasksStatus {
+  IN_THE_PROGRESS
+  COMPLETED
+}
+
+model User {
+  id       String @id @default(uuid())
+  email    String @unique
+  username String @unique
+  password String
+
+  createdAt DateTime   @default(now()) @map("created_at")
+  role      UsersRoles @default(USER)
+
+  additional_data AdditionalUserData?
+
+  teams         Team[] @relation("UserTeams")
+  teamsAsLeader Team[] @relation("TeamLeader")
+
+  assigned_tasks Task[]    @relation("UserTasks")
+  sentMessages   Message[] @relation("UserMessages")
+
+  @@map("users")
+}
+
+model AdditionalUserData {
+  id String @id @default(uuid())
+
+  refresh_token String?
+
+  is_email_verified        Boolean? @default(false)
+  email_verification_token String?
+
+  password_reset_token      String?
+  password_reset_expires_at DateTime?
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @unique
+
+  @@map("additional_user_data")
+}
+
+model Team {
+  id String @id @default(uuid())
+
+  name     String @unique
+  leader   User   @relation("TeamLeader", fields: [leaderId], references: [id])
+  leaderId String
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  members User[] @relation("UserTeams")
+
+  tasks Task[] @relation("TeamTask")
+
+  team_chat Chat? @relation("TeamChat")
+
+  @@map("teams")
+}
+
+model Task {
+  id String @id @default(uuid())
+
+  title     String
+  createdAt DateTime @default(now()) @map("created_at")
+  deadline  DateTime
+
+  type        TasksTypes      @default(DEFAULT)
+  hardLevel   TasksHardLevels @default(EASY) @map("hard_level")
+  isCompleted Boolean         @default(false) @map("is_completed")
+
+  description String?
+  subtasks    SubTask[] @relation("SubTasks")
+
+  team   Team   @relation("TeamTask", fields: [teamId], references: [id])
+  teamId String
+
+  for_user   User   @relation("UserTasks", fields: [for_userId], references: [id])
+  for_userId String
+
+  @@map("tasks")
+}
+
+model SubTask {
+  id String @id @default(uuid())
+
+  name   String
+  status SubTasksStatus @default(IN_THE_PROGRESS)
+
+  task   Task   @relation("SubTasks", fields: [taskId], references: [id])
+  taskId String
+
+  @@map("subtasks")
+}
+
+model Chat {
+  id String @id @default(uuid())
+
+  team   Team   @relation("TeamChat", fields: [teamID], references: [id])
+  teamID String @unique
+
+  messages Message[] @relation("ChatMessages")
+
+  @@map("chats")
+}
+
+model Message {
+  id String @id @default(uuid())
+
+  chat   Chat   @relation("ChatMessages", fields: [chatId], references: [id])
+  chatId String
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  sender   User   @relation("UserMessages", fields: [senderId], references: [id])
+  senderId String
+
+  message_text String
+
+  @@map("messages")
+}
