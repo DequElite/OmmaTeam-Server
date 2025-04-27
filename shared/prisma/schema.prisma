@@ -57,7 +57,7 @@ model AdditionalUserData {
   is_email_verified        Boolean? @default(false)
   email_verification_token String?
 
-  password_reset_token      String?
+  password_reset_token      String? @unique
   password_reset_expires_at DateTime?
 
   user   User   @relation(fields: [userId], references: [id])

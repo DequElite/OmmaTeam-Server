@@ -34,7 +34,7 @@
     "dotenv": "^16.5.0",
     "jsonwebtoken": "^9.0.2",
     "nodemailer": "^6.10.1",
-    "omma-shared-lib": "^0.0.20",
+    "omma-shared-lib": "^0.0.21",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.1",

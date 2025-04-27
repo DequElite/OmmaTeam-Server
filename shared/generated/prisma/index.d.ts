@@ -9679,6 +9679,7 @@ export namespace Prisma {
 
   export type AdditionalUserDataWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    password_reset_token?: string
     userId?: string
     AND?: AdditionalUserDataWhereInput | AdditionalUserDataWhereInput[]
     OR?: AdditionalUserDataWhereInput[]
@@ -9686,10 +9687,9 @@ export namespace Prisma {
     refresh_token?: StringNullableFilter<"AdditionalUserData"> | string | null
     is_email_verified?: BoolNullableFilter<"AdditionalUserData"> | boolean | null
     email_verification_token?: StringNullableFilter<"AdditionalUserData"> | string | null
-    password_reset_token?: StringNullableFilter<"AdditionalUserData"> | string | null
     password_reset_expires_at?: DateTimeNullableFilter<"AdditionalUserData"> | Date | string | null
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
-  }, "id" | "userId">
+  }, "id" | "password_reset_token" | "userId">
 
   export type AdditionalUserDataOrderByWithAggregationInput = {
     id?: SortOrder
