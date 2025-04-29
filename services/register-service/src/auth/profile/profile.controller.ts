@@ -19,7 +19,7 @@ export class ProfileController {
 
 	@UseGuards(JwtauthGuard)
 	@Get()
-	public async getProfileData(@Req() req: Request) {
+	public getProfileData(@Req() req: Request) {
 		const userData = req.user;
 		return {
 			message: 'access granted',

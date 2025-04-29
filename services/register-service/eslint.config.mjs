@@ -28,7 +28,7 @@ export default tseslint.config(
   {
     "rules": {
       "prettier/prettier": ["error", { "useTabs": true }],
-      "indent": ["error", "tab"],  // Принуждаем использовать табуляции
+      "indent": ["error", "tab"], 
       "@typescript-eslint/explicit-module-boundary-types": "off"
     }
   }

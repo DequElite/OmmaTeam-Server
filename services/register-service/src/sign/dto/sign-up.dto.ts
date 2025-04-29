@@ -13,7 +13,7 @@ export enum UsersRoles {
 
 export class SignDto {
 	@IsEmail()
-		email: string;
+	email: string;
 
 	@IsString({
 		message: 'Username must be a string',
@@ -21,7 +21,7 @@ export class SignDto {
 	@MaxLength(25, {
 		message: 'The username length should not exceed 25 characters',
 	})
-		username: string;
+	username: string;
 
 	@IsStrongPassword()
 		password?: string;
