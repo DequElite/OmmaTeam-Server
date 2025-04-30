@@ -11,13 +11,17 @@ import {
 import { SignUpService } from './sign-up.service';
 import { SignDto } from '../dto/sign-up.dto';
 import { Response } from 'express';
+import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Sign-up')
 @Controller('sign/sign-up')
 export class SignUpController {
 	constructor(private readonly signUpService: SignUpService) {}
 
 	@Post()
 	@HttpCode(HttpStatus.CREATED)
+	@ApiOperation({ summary: 'Create new user in system' })
+	@ApiBody({ type: SignDto })
 	public async registerUser(
 		@Body() dto: SignDto,
 		@Res({ passthrough: true }) res: Response,

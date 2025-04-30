@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
 	IsEmail,
 	IsString,
@@ -6,6 +7,7 @@ import {
 } from 'class-validator';
 
 export class ChangeProfileDto {
+	@ApiProperty({ example: 'dequelite', description: 'User name to change' })
 	@IsString({
 		message: 'Username must be a string',
 	})
@@ -14,14 +16,20 @@ export class ChangeProfileDto {
 	})
 	username: string;
 
+	@ApiProperty({
+		example: 'dequelite@gmail.com',
+		description: 'User email to change',
+	})
 	@IsEmail()
-		email: string;
+	email: string;
 
+	@ApiProperty({ example: 'oldPAssword', description: 'Old user password' })
 	@IsString()
-		oldPassword: string;
+	oldPassword: string;
 
+	@ApiProperty({ example: 'newpaswword', description: 'New user password' })
 	@IsStrongPassword()
-		password: string;
+	password: string;
 }
 
 export type TPasswordChangeDto = Partial<

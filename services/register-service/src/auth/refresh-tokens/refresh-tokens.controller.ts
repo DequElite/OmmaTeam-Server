@@ -7,12 +7,14 @@ import {
 } from '@nestjs/common';
 import { RefreshTokensService } from './refresh-tokens.service';
 import { Request, Response } from 'express';
+import { ApiOperation } from '@nestjs/swagger';
 
 @Controller('auth/refresh-tokens')
 export class RefreshTokensController {
 	constructor(private readonly refreshTokensService: RefreshTokensService) {}
 
 	@Get()
+	@ApiOperation({ summary: 'Create new accessToken' })
 	public async refreshUserToken(
 		@Req() req: Request,
 		@Res({ passthrough: true }) res: Response,

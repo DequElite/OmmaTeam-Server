@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
 	IsEmail,
 	IsEnum,
@@ -12,9 +13,11 @@ export enum UsersRoles {
 }
 
 export class SignDto {
+	@ApiProperty({ example: 'user@example.com', description: 'User email' })
 	@IsEmail()
 	email: string;
 
+	@ApiProperty({ example: 'dequelite', description: 'User name' })
 	@IsString({
 		message: 'Username must be a string',
 	})
@@ -23,11 +26,15 @@ export class SignDto {
 	})
 	username: string;
 
+	@ApiProperty({
+		example: 'strong65#password!',
+		description: 'User account password',
+	})
 	@IsStrongPassword()
-		password?: string;
+	password?: string;
 
 	@IsEnum(UsersRoles)
-		role?: UsersRoles;
+	role?: UsersRoles;
 }
 
 export type TPartialSignDto = Partial<SignDto>;

@@ -8,12 +8,15 @@ import {
 import { LogInService } from './log-in.service';
 import { SignDto, TEmailAndPasswordRequiredSignDto } from '../dto/sign-up.dto';
 import { Response } from 'express';
+import { ApiBody, ApiOperation } from '@nestjs/swagger';
 
 @Controller('sign/log-in')
 export class LogInController {
 	constructor(private readonly logInService: LogInService) {}
 
 	@Post()
+	@ApiOperation({ summary: 'Log in user' })
+	@ApiBody({ type: SignDto })
 	public async logInUser(
 		@Body() dto: TEmailAndPasswordRequiredSignDto,
 		@Res({ passthrough: true }) res: Response,

@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { SendResetPasswordKeyService } from './send-reset-password-key.service';
 import { SendResetPasswordKeyDTO } from '../dto/sendKey.dto';
+import { ApiBody, ApiOperation } from '@nestjs/swagger';
 
 @Controller('forgot-password/send-reset-password-key')
 export class SendResetPasswordKeyController {
@@ -14,6 +15,8 @@ export class SendResetPasswordKeyController {
 	) {}
 
 	@Post()
+	@ApiOperation({ summary: 'Send reset password key' })
+	@ApiBody({ type: SendResetPasswordKeyDTO })
 	public async sendRessetPasswordKey(@Body() dto: SendResetPasswordKeyDTO) {
 		try {
 			await this.sendResetPasswordKeyService.sendResetKey(dto);

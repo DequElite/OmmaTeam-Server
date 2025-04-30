@@ -12,6 +12,7 @@ import { ProfileService } from './profile.service';
 import { Request, Response } from 'express';
 import { JwtauthGuard } from 'omma-shared-lib';
 import { TPartialChange, TPasswordChangeDto } from '../dto/changeAuth.dto';
+import { ApiBody, ApiOperation } from '@nestjs/swagger';
 
 @Controller('auth/profile')
 export class ProfileController {
@@ -19,6 +20,7 @@ export class ProfileController {
 
 	@UseGuards(JwtauthGuard)
 	@Get()
+	@ApiOperation({ summary: 'Get user data from auth token' })
 	public getProfileData(@Req() req: Request) {
 		const userData = req.user;
 		return {
@@ -29,6 +31,7 @@ export class ProfileController {
 
 	@UseGuards(JwtauthGuard)
 	@Post('/change-password')
+	@ApiOperation({ summary: 'Change user password' })
 	public async changePassword(
 		@Req() req: Request,
 		@Body() dto: TPasswordChangeDto,
@@ -53,6 +56,7 @@ export class ProfileController {
 
 	@UseGuards(JwtauthGuard)
 	@Post('/change-profile')
+	@ApiOperation({ summary: 'Change user email or username' })
 	public async changeUserData(
 		@Req() req: Request,
 		@Res({ passthrough: true }) res: Response,
