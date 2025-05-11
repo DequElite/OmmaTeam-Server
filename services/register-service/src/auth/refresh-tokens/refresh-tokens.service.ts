@@ -3,6 +3,12 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService, RegisterFunctionsService } from 'omma-shared-lib';
 import { User } from 'omma-shared-lib/generated/prisma';
 
+interface DecodedToken {
+	email: string;
+	username: string;
+	role: string;
+}
+
 @Injectable()
 export class RefreshTokensService {
 	constructor(
@@ -19,9 +25,15 @@ export class RefreshTokensService {
 			);
 		}
 
-		const decodedToken: any = this.jwt.verify(refreshToken, {
-			secret: process.env.JWT_SECRET,
-		});
+		let decodedToken: DecodedToken;
+		try {
+			decodedToken = this.jwt.verify(refreshToken, {
+				secret: process.env.JWT_SECRET,
+			});
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		} catch (error) {
+			throw new HttpException('INVALID_REFRESH_TOKEN', HttpStatus.UNAUTHORIZED);
+		}
 
 		const isUserExist = await this.checkIfUserExist(decodedToken.email);
 		if (!isUserExist.isExist || !isUserExist.user) {
@@ -29,6 +41,14 @@ export class RefreshTokensService {
 		}
 
 		const user: User = isUserExist.user;
+
+		const isTokenValid = await this.checkIfTokenExist(user.id, refreshToken);
+		if (!isTokenValid) {
+			throw new HttpException(
+				'INVALID_OR_EXPIRED_REFRESH_TOKEN',
+				HttpStatus.UNAUTHORIZED,
+			);
+		}
 
 		const accessToken = this.jwt.sign(
 			{
@@ -59,5 +79,18 @@ export class RefreshTokensService {
 			user,
 			isExist: !!user,
 		};
+	}
+
+	private async checkIfTokenExist(
+		userId: string,
+		refresh_token: string,
+	): Promise<boolean> {
+		const additionalData = await this.prisma.additionalUserData.findUnique({
+			where: {
+				userId,
+			},
+		});
+
+		return additionalData?.refresh_token === refresh_token;
 	}
 }
