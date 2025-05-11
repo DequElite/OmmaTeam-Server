@@ -30,10 +30,12 @@ export class SignUpController {
 			const { message, refreshToken, accessToken } =
 				await this.signUpService.registerUser(dto);
 
+			const isProd = process.env.NODE_ENV === 'production';
+
 			res.cookie('refreshToken', refreshToken, {
 				httpOnly: true,
-				secure: process.env.NODE_ENV === 'production',
-				sameSite: 'none',
+				secure: isProd,
+				sameSite: isProd ? 'none' : 'lax',
 				maxAge: 3 * 24 * 60 * 60 * 1000,
 			});
 
