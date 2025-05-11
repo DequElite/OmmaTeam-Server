@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import * as dotenv from 'dotenv';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-require-imports
 const cookieParser = require('cookie-parser');
 
 dotenv.config();
@@ -40,6 +41,14 @@ async function bootstrap() {
 
 	// eslint-disable-next-line @typescript-eslint/no-unsafe-call
 	app.use(cookieParser());
+
+	app.enableCors({
+		origin: ['http://localhost:5173'],
+		methods: ['GET', 'POST', 'DELETE', 'PUT', 'PATCH'],
+		allowedHeaders: ['Content-Type', 'Authorization'],
+		credentials: true,
+	});
+
 	await app.listen(process.env.PORT ?? 9002);
 }
 
