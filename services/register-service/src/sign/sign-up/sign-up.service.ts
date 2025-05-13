@@ -34,9 +34,10 @@ export class SignUpService {
 		);
 
 		const newUser = await this.createUser(dto, HashedPassword);
+		console.debug('SIGN UP NEW USER: ', newUser);
 
 		const { refreshToken, accessToken } =
-			await this.registerFunctions.generateTokens(dto);
+			await this.registerFunctions.generateTokens(newUser);
 
 		await this.registerFunctions.saveRefreshToken(newUser.id, refreshToken);
 

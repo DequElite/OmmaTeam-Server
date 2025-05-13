@@ -29,7 +29,7 @@ export class JwtauthGuard implements CanActivate {
     } catch (err) {
       console.error("error at JwtauthGuard: ", err);
 
-      throw new InternalServerErrorException('JWT verification failed');
+      throw new UnauthorizedException('Invalid or expired token');
     }
   }
 }

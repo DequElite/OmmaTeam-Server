@@ -4,9 +4,7 @@ import { PrismaService, RegisterFunctionsService } from 'omma-shared-lib';
 import { User } from 'omma-shared-lib/generated/prisma';
 
 interface DecodedToken {
-	email: string;
-	username: string;
-	role: string;
+	id: string;
 }
 
 @Injectable()
@@ -35,7 +33,7 @@ export class RefreshTokensService {
 			throw new HttpException('INVALID_REFRESH_TOKEN', HttpStatus.UNAUTHORIZED);
 		}
 
-		const isUserExist = await this.checkIfUserExist(decodedToken.email);
+		const isUserExist = await this.checkIfUserExist(decodedToken.id);
 		if (!isUserExist.isExist || !isUserExist.user) {
 			throw new HttpException('USER_NOT_EXIST', HttpStatus.BAD_REQUEST);
 		}
@@ -68,10 +66,10 @@ export class RefreshTokensService {
 		};
 	}
 
-	private async checkIfUserExist(email: string) {
+	private async checkIfUserExist(id: string) {
 		const user = await this.prisma.user.findUnique({
 			where: {
-				email,
+				id,
 			},
 		});
 

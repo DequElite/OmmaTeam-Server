@@ -41,6 +41,7 @@ export class RegisterFunctionsService {
     }
 
     public async generateTokens(dto: any) {
+		console.debug('generateTokens dto: ', dto);
         const accessToken = this.jwt.sign({ 
             username: dto.username, 
             email: dto.email, 
@@ -51,10 +52,10 @@ export class RegisterFunctionsService {
         });
 
         const refreshToken = this.jwt.sign({ 
-            email: dto.email, 
+            id: dto.id, 
         }, { 
             secret:process.env.JWT_SECRET,
-            expiresIn: "3d" 
+            expiresIn: "4d" 
         });
 
         return { 
