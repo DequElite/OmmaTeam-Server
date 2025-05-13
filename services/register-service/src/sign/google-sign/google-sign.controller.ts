@@ -40,7 +40,7 @@ export class GoogleSignController {
 			});
 
 			return res.redirect(
-				`${process.env.CLIENT_REDIRECT_URL}?accessToken=${accessToken}`,
+				`${process.env.CLIENT_GOOGLE_REDIRECT_URL}?accessToken=${accessToken}`,
 			);
 		} catch (err) {
 			console.error('Error at registering user by google: ', err);
