@@ -3,6 +3,7 @@ import {
 	Controller,
 	Get,
 	InternalServerErrorException,
+	Patch,
 	Post,
 	Req,
 	Res,
@@ -30,7 +31,7 @@ export class ProfileController {
 	}
 
 	@UseGuards(JwtauthGuard)
-	@Post('/change-password')
+	@Patch('/change-password')
 	@ApiOperation({ summary: 'Change user password' })
 	public async changePassword(
 		@Req() req: Request,
@@ -55,7 +56,7 @@ export class ProfileController {
 	}
 
 	@UseGuards(JwtauthGuard)
-	@Post('/change-profile')
+	@Patch('/change-profile')
 	@ApiOperation({ summary: 'Change user email or username' })
 	public async changeUserData(
 		@Req() req: Request,
