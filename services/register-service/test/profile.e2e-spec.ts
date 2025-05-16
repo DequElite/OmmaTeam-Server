@@ -14,6 +14,9 @@ describe('PorfileController (e2e)', () => {
 	let prisma: PrismaService;
 	let token: string;
 
+	const newUsername = 'dequeliteTesterUpdated';
+	const newEmail = 'updateduser@gmail.com';
+
 	beforeAll(async () => {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-require-imports
 		require('dotenv').config({ path: '.env.test' });
@@ -35,17 +38,19 @@ describe('PorfileController (e2e)', () => {
 
 		await prisma.additionalUserData.deleteMany({
 			where: {
-				user: {
-					email: 'testuser@gmail.com',
-				},
+				OR: [
+					{ user: { email: 'testuser@gmail.com' } },
+					{ user: { email: newEmail } },
+				],
 			},
 		});
 
 		await prisma.user.deleteMany({
 			where: {
-				email: 'testuser@gmail.com',
+				OR: [{ email: 'testuser@gmail.com' }, { email: newEmail }],
 			},
 		});
+
 		await prisma.user.create({
 			data: {
 				email: 'testuser@gmail.com',
@@ -91,7 +96,7 @@ describe('PorfileController (e2e)', () => {
 		});
 	});
 
-	it('/auth/profile/change-password (POST) - 201 + message', async () => {
+	it('/auth/profile/change-password (POST) - 200 + message', async () => {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 		const res = await request(app.getHttpServer())
 			.patch('/auth/profile/change-password')
@@ -100,7 +105,7 @@ describe('PorfileController (e2e)', () => {
 				oldPassword: 'hashed-password',
 				newPassword: 'newStrongPassword',
 			})
-			.expect(201);
+			.expect(200);
 
 		expect(res.body).toEqual({
 			message: 'Password updated successfully',
@@ -119,10 +124,7 @@ describe('PorfileController (e2e)', () => {
 			.expect(401);
 	});
 
-	it('/auth/profile/change-profile (POST) - 201', async () => {
-		const newUsername = 'dequeliteTesterUpdated';
-		const newEmail = 'updateduser@gmail.com';
-
+	it('/auth/profile/change-profile (POST) - 200', async () => {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 		await request(app.getHttpServer())
 			.patch('/auth/profile/change-profile')
@@ -131,7 +133,7 @@ describe('PorfileController (e2e)', () => {
 				username: newUsername,
 				email: newEmail,
 			})
-			.expect(201);
+			.expect(200);
 
 		const updatedUser = await prisma.user.findUnique({
 			where: { email: newEmail },
@@ -143,14 +145,16 @@ describe('PorfileController (e2e)', () => {
 	afterAll(async () => {
 		await prisma.additionalUserData.deleteMany({
 			where: {
-				user: {
-					email: 'testuser@gmail.com',
-				},
+				OR: [
+					{ user: { email: 'testuser@gmail.com' } },
+					{ user: { email: newEmail } },
+				],
 			},
 		});
+
 		await prisma.user.deleteMany({
 			where: {
-				email: 'testuser@gmail.com',
+				OR: [{ email: 'testuser@gmail.com' }, { email: newEmail }],
 			},
 		});
 		await app.close();
