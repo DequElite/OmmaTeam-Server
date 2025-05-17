@@ -1,12 +1,14 @@
 import {
 	Body,
 	Controller,
+	HttpCode,
+	HttpStatus,
 	InternalServerErrorException,
 	Post,
 } from '@nestjs/common';
 import { SendResetPasswordKeyService } from './send-reset-password-key.service';
 import { SendResetPasswordKeyDTO } from '../dto/sendKey.dto';
-import { ApiBody, ApiOperation } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 @Controller('forgot-password/send-reset-password-key')
 export class SendResetPasswordKeyController {
@@ -17,6 +19,17 @@ export class SendResetPasswordKeyController {
 	@Post()
 	@ApiOperation({ summary: 'Send reset password key' })
 	@ApiBody({ type: SendResetPasswordKeyDTO })
+	@ApiResponse({
+		status: HttpStatus.OK,
+		description: 'Password reset email sent',
+		schema: { example: { message: 'A password reset email has been sent.' } },
+	})
+	@ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
+	@ApiResponse({
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		description: 'Server error',
+	})
+	@HttpCode(HttpStatus.OK)
 	public async sendRessetPasswordKey(@Body() dto: SendResetPasswordKeyDTO) {
 		try {
 			await this.sendResetPasswordKeyService.sendResetKey(dto);

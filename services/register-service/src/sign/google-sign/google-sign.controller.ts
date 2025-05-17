@@ -1,6 +1,8 @@
 import {
 	Controller,
 	Get,
+	HttpCode,
+	HttpStatus,
 	InternalServerErrorException,
 	Req,
 	Res,
@@ -10,6 +12,7 @@ import { GoogleSignService } from './google-sign.service';
 import { AuthGuard } from '@nestjs/passport';
 import { Request, Response } from 'express';
 import { TEmailAndUsernameRequiredSignDto } from '../dto/sign-up.dto';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 @Controller('sign/google-sign')
 export class GoogleSignController {
@@ -17,10 +20,20 @@ export class GoogleSignController {
 
 	@Get()
 	@UseGuards(AuthGuard('google'))
+	@ApiOperation({ summary: 'Redirect user to Google OAuth' })
+	@ApiResponse({ status: 302, description: 'Redirect to Google OAuth page' })
 	public async googleAuth() {}
 
 	@Get('/callback')
 	@UseGuards(AuthGuard('google'))
+	@ApiOperation({ summary: 'Google OAuth callback' })
+	@ApiResponse({
+		status: 302,
+		description: 'Redirect to client app with access token',
+	})
+	@ApiResponse({ status: 500, description: 'Internal server error' })
+	@ApiResponse({ status: 400, description: 'Invalid password' })
+	@HttpCode(HttpStatus.CREATED)
 	public async googleAuthCallback(
 		@Req() req: Request,
 		@Res({ passthrough: true }) res: Response,

@@ -2,9 +2,10 @@ import {
 	Body,
 	Controller,
 	Get,
+	HttpCode,
+	HttpStatus,
 	InternalServerErrorException,
 	Patch,
-	Post,
 	Req,
 	Res,
 	UseGuards,
@@ -13,7 +14,7 @@ import { ProfileService } from './profile.service';
 import { Request, Response } from 'express';
 import { JwtauthGuard } from 'omma-shared-lib';
 import { TPartialChange, TPasswordChangeDto } from '../dto/changeAuth.dto';
-import { ApiBody, ApiOperation } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 @Controller('auth/profile')
 export class ProfileController {
@@ -22,6 +23,15 @@ export class ProfileController {
 	@UseGuards(JwtauthGuard)
 	@Get()
 	@ApiOperation({ summary: 'Get user data from auth token' })
+	@ApiResponse({
+		status: 200,
+		description: 'User data retrieved successfully',
+	})
+	@ApiResponse({
+		status: 401,
+		description: 'Unauthorized',
+	})
+	@HttpCode(HttpStatus.OK)
 	public getProfileData(@Req() req: Request) {
 		const userData = req.user;
 		return {
@@ -33,6 +43,17 @@ export class ProfileController {
 	@UseGuards(JwtauthGuard)
 	@Patch('/change-password')
 	@ApiOperation({ summary: 'Change user password' })
+	@ApiOperation({ summary: 'Change user password' })
+	@ApiResponse({
+		status: 200,
+		description: 'Password updated successfully',
+		schema: { example: { message: 'Password updated successfully' } },
+	})
+	@ApiResponse({ status: 400, description: 'Missing password fields' })
+	@ApiResponse({ status: 401, description: 'Invalid old password' })
+	@ApiResponse({ status: 404, description: 'User not found' })
+	@ApiResponse({ status: 500, description: 'Internal server error' })
+	@HttpCode(HttpStatus.OK)
 	public async changePassword(
 		@Req() req: Request,
 		@Body() dto: TPasswordChangeDto,
@@ -58,6 +79,20 @@ export class ProfileController {
 	@UseGuards(JwtauthGuard)
 	@Patch('/change-profile')
 	@ApiOperation({ summary: 'Change user email or username' })
+	@ApiResponse({
+		status: 200,
+		description: 'User data successfully updated',
+		schema: {
+			example: {
+				message: 'User data successfully updated',
+				accessToken: 'new-access-token',
+			},
+		},
+	})
+	@ApiResponse({ status: 400, description: 'Missing data fields' })
+	@ApiResponse({ status: 404, description: 'User not found' })
+	@ApiResponse({ status: 500, description: 'Internal server error' })
+	@HttpCode(HttpStatus.OK)
 	public async changeUserData(
 		@Req() req: Request,
 		@Res({ passthrough: true }) res: Response,

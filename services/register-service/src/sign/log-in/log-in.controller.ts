@@ -1,6 +1,8 @@
 import {
 	Body,
 	Controller,
+	HttpCode,
+	HttpStatus,
 	InternalServerErrorException,
 	Post,
 	Res,
@@ -8,7 +10,7 @@ import {
 import { LogInService } from './log-in.service';
 import { SignDto, TEmailAndPasswordRequiredSignDto } from '../dto/sign-up.dto';
 import { Response } from 'express';
-import { ApiBody, ApiOperation } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 @Controller('sign/log-in')
 export class LogInController {
@@ -17,6 +19,10 @@ export class LogInController {
 	@Post()
 	@ApiOperation({ summary: 'Log in user' })
 	@ApiBody({ type: SignDto })
+	@HttpCode(HttpStatus.OK)
+	@ApiResponse({ status: 401, description: 'Invalid password' })
+	@ApiResponse({ status: 404, description: 'User not found' })
+	@ApiResponse({ status: 500, description: 'Internal server error' })
 	public async logInUser(
 		@Body() dto: TEmailAndPasswordRequiredSignDto,
 		@Res({ passthrough: true }) res: Response,

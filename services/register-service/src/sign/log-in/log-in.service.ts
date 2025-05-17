@@ -16,14 +16,14 @@ export class LogInService {
 	public async logInUser(dto: TEmailAndPasswordRequiredSignDto) {
 		const isUserExist = await this.checkIfUserExist(dto.email);
 		if (!isUserExist.isExist || !isUserExist.user) {
-			throw new HttpException('USER_NOT_EXIST', HttpStatus.BAD_REQUEST);
+			throw new HttpException('USER_NOT_EXIST', HttpStatus.NOT_FOUND);
 		}
 
 		const user: User = isUserExist.user;
 
 		const isPasswordValid = await bcrypt.compare(dto.password, user.password);
 		if (!isPasswordValid) {
-			throw new HttpException('INVALID_PASSWORD', HttpStatus.BAD_REQUEST);
+			throw new HttpException('INVALID_PASSWORD', HttpStatus.UNAUTHORIZED);
 		}
 
 		const { refreshToken, accessToken } =

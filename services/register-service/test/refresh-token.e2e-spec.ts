@@ -84,12 +84,12 @@ describe('PorfileController (e2e)', () => {
 		});
 	});
 
-	it('/auth/refresh-tokens (GET) - 401s', async () => {
+	it('/auth/refresh-tokens (GET) - 401', async () => {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 		await request(app.getHttpServer()).get('/auth/refresh-tokens').expect(401);
 	});
 
-    it('/auth/refresh-tokens (GET) - 200', async () => {
+	it('/auth/refresh-tokens (GET) - 200', async () => {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 		const response = await request(app.getHttpServer())
 			.get('/auth/refresh-tokens')

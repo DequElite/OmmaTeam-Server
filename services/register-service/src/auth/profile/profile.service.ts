@@ -16,7 +16,7 @@ export class ProfileService {
 	public async changeUserData(dto: TPartialChange, userData: any) {
 		const isUserExist = await this.checkIfUserExist(userData.email);
 		if (!isUserExist.isExist || !isUserExist.user) {
-			throw new HttpException('USER_NOT_EXIST', HttpStatus.BAD_REQUEST);
+			throw new HttpException('USER_NOT_EXIST', HttpStatus.NOT_FOUND);
 		}
 
 		const user: User = isUserExist.user;
@@ -54,7 +54,7 @@ export class ProfileService {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
 		const isUserExist = await this.checkIfUserExist(userData.email);
 		if (!isUserExist.isExist || !isUserExist.user) {
-			throw new HttpException('USER_NOT_EXIST', HttpStatus.BAD_REQUEST);
+			throw new HttpException('USER_NOT_EXIST', HttpStatus.NOT_FOUND);
 		}
 
 		const user: User = isUserExist.user;

@@ -5,6 +5,8 @@ import { User } from 'omma-shared-lib/generated/prisma';
 
 interface DecodedToken {
 	id: string;
+	iat?: number; // issued at
+	exp?: number; // expiration
 }
 
 @Injectable()
