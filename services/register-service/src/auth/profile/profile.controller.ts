@@ -3,6 +3,7 @@ import {
 	Controller,
 	Get,
 	HttpCode,
+	HttpException,
 	HttpStatus,
 	InternalServerErrorException,
 	Patch,
@@ -68,7 +69,7 @@ export class ProfileController {
 		} catch (err) {
 			console.error('Error during changing passowrd:', err);
 
-			if (err.getStatus) {
+			if (err instanceof HttpException) {
 				throw err;
 			}
 
@@ -114,7 +115,6 @@ export class ProfileController {
 				accessToken,
 			};
 		} catch (err) {
-			console.error('Error during changing user data:', err);
 
 			if (err.getStatus) {
 				throw err;

@@ -2,11 +2,14 @@ import { INestApplication } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from 'omma-shared-lib';
-import { UsersRoles } from 'omma-shared-lib/generated/prisma';
 import { AppModule } from '../src/app.module';
 import * as request from 'supertest';
 import { GoogleStrategy } from '../src/sign/google-sign/google.strategy';
-import * as bcrypt from 'bcrypt';
+import {
+	clearTestingUserData,
+	createTestingUser,
+} from './utils/userTestingData.util';
+import { UsersRoles } from 'omma-shared-lib/generated/prisma';
 
 describe('PorfileController (e2e)', () => {
 	let app: INestApplication;
@@ -34,36 +37,9 @@ describe('PorfileController (e2e)', () => {
 		prisma = app.get(PrismaService);
 		jwtService = app.get(JwtService);
 
-		const hashedPassword = await bcrypt.hash('hashed-password', 10);
+		await clearTestingUserData('testuser@gmail.com', newEmail, prisma);
 
-		await prisma.additionalUserData.deleteMany({
-			where: {
-				OR: [
-					{ user: { email: 'testuser@gmail.com' } },
-					{ user: { email: newEmail } },
-				],
-			},
-		});
-
-		await prisma.user.deleteMany({
-			where: {
-				OR: [{ email: 'testuser@gmail.com' }, { email: newEmail }],
-			},
-		});
-
-		await prisma.user.create({
-			data: {
-				email: 'testuser@gmail.com',
-				username: 'dequeliteTester',
-				password: hashedPassword,
-				role: UsersRoles.USER,
-				additional_data: {
-					create: {
-						is_email_verified: false,
-					},
-				},
-			},
-		});
+		await createTestingUser('testuser@gmail.com', 'dequeliteTester', prisma);
 
 		token = jwtService.sign(
 			{
@@ -143,20 +119,7 @@ describe('PorfileController (e2e)', () => {
 	});
 
 	afterAll(async () => {
-		await prisma.additionalUserData.deleteMany({
-			where: {
-				OR: [
-					{ user: { email: 'testuser@gmail.com' } },
-					{ user: { email: newEmail } },
-				],
-			},
-		});
-
-		await prisma.user.deleteMany({
-			where: {
-				OR: [{ email: 'testuser@gmail.com' }, { email: newEmail }],
-			},
-		});
+		await clearTestingUserData('testuser@gmail.com', newEmail, prisma);
 		await app.close();
 	});
 });
