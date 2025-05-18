@@ -46,6 +46,10 @@ jobs:
           done
       - name: Installing dependencies
         run: npm install
+      - name: Generate Prisma client
+        run: npx prisma generate
+      - name: Apply Prisma migrations
+        run: npx prisma migrate deploy
       - name: Building the app
         run: npm run build
       - name: Running  E2E tests
