@@ -47,5 +47,5 @@ jobs:
         run: npm install
       - name: Building the app
         run: npm run build
-      - name: Running E2E tests
+      - name: Running  E2E tests
         run: npm run test:e2e
