@@ -3,9 +3,9 @@ import * as bcrypt from 'bcrypt';
 import { UsersRoles } from 'omma-shared-lib/generated/prisma';
 
 export interface TestingUsersTypes {
-	username?: string;
+	username: string;
 	email: string;
-	id: string;
+	id?: string;
 }
 
 const testingUsers = new Map<string, TestingUsersTypes>();
