@@ -1,0 +1,28 @@
+name: OmmaTeam Back-End CI pipline for microservices
+
+on:
+  push: 
+    path:
+      - 'services/**'
+  pull_request:
+    path:
+      - 'services/**'
+
+jobs:
+  register-service:
+    name: Run tests for register-service
+    runs-on : ubuntu-latest
+    defaults:
+      run: 
+        working-directory: services/register_service
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Installing dependencies
+        run: npm install
+      - name: Building the app 
+        run: npm run build
+      - name: Running E2E tests 
+        run: npm run test:e2e
