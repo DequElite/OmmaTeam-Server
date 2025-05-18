@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'services/**'
+      - '.github/**'
   pull_request:
     paths:
       - 'services/**'
