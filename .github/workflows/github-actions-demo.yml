@@ -52,6 +52,8 @@ jobs:
 
       - name: Apply Prisma migrations
         run: npx prisma migrate deploy --schema=./node_modules/omma-shared-lib/prisma/schema.prisma
+        env:
+          DATABASE_URL: postgresql://postgres:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/omma_db?schema=public
 
       - name: Building the app
         run: npm run build
