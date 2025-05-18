@@ -44,10 +44,15 @@ describe('send-reset-password-key controller (e2e)', () => {
 
 		await clearTestingUserData(testingUser.email, '', prisma);
 
-		await createTestingUser(testingUser.email, testingUser.username, prisma);
+		await createTestingUser(
+			testingUser.email,
+			testingUser.username,
+			prisma,
+			'some-password',
+		);
 	});
 
-	it('/api/forgot-password/send-reset-password-key (POST) - 200', async () => {
+	it('/forgot-password/send-reset-password-key (POST) - 200', async () => {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 		await request(app.getHttpServer())
 			.post('/forgot-password/send-reset-password-key')
@@ -78,7 +83,7 @@ describe('send-reset-password-key controller (e2e)', () => {
 		);
 	});
 
-	it('/api/forgot-password/send-reset-password-key (POST) - 404', async () => {
+	it('/forgot-password/send-reset-password-key (POST) - 404', async () => {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 		await request(app.getHttpServer())
 			.post('/forgot-password/send-reset-password-key')

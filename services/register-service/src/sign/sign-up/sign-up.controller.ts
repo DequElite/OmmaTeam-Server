@@ -11,7 +11,7 @@ import {
 import { SignUpService } from './sign-up.service';
 import { SignDto } from '../dto/sign-up.dto';
 import { Response } from 'express';
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Sign-up')
 @Controller('sign/sign-up')
@@ -21,6 +21,18 @@ export class SignUpController {
 	@Post()
 	@HttpCode(HttpStatus.CREATED)
 	@ApiOperation({ summary: 'Create new user in system' })
+	@ApiResponse({
+		status: HttpStatus.BAD_REQUEST,
+		description: 'User already exist',
+	})
+	@ApiResponse({
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		description: 'Internal server error',
+	})
+	@ApiResponse({
+		status: HttpStatus.CREATED,
+		description: 'User created',
+	})
 	@ApiBody({ type: SignDto })
 	public async registerUser(
 		@Body() dto: SignDto,

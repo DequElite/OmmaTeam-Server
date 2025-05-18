@@ -20,6 +20,7 @@ export class LogInController {
 	@ApiOperation({ summary: 'Log in user' })
 	@ApiBody({ type: SignDto })
 	@HttpCode(HttpStatus.OK)
+	@ApiResponse({ status: 200, description: 'LogIned' })
 	@ApiResponse({ status: 401, description: 'Invalid password' })
 	@ApiResponse({ status: 404, description: 'User not found' })
 	@ApiResponse({ status: 500, description: 'Internal server error' })

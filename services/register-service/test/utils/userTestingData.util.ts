@@ -34,6 +34,7 @@ export async function createTestingUser(
 	email: string,
 	username: string,
 	prisma: PrismaService,
+	password: string = 'hashed-password',
 ) {
 	if (testingUsers.has(email)) {
 		throw new Error(`User with email "${email}" already exists`);
@@ -47,7 +48,7 @@ export async function createTestingUser(
 		throw new Error(`User with email "${email}" already exists`);
 	}
 
-	const hashedPassword = await bcrypt.hash('hashed-password', 10);
+	const hashedPassword = await bcrypt.hash(password, 10);
 
 	const user = await prisma.user.create({
 		data: {
