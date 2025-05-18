@@ -1,22 +1,24 @@
-name: OmmaTeam Back-End CI pipline for microservices
+name: OmmaTeam Back-End CI pipeline for microservices
 
 on:
-  push: 
-    path:
+  push:
+    paths:
       - 'services/**'
   pull_request:
-    path:
+    paths:
       - 'services/**'
 
 jobs:
   register-service:
     name: Run tests for register-service
-    runs-on : ubuntu-latest
-    postgres:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
         image: postgres:15
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD:  ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_DB: omma_db
         ports:
           - 5432:5432
@@ -25,9 +27,11 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+
     defaults:
-      run: 
+      run:
         working-directory: services/register-service
+
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -41,7 +45,7 @@ jobs:
           done
       - name: Installing dependencies
         run: npm install
-      - name: Building the app 
+      - name: Building the app
         run: npm run build
-      - name: Running E2E tests 
+      - name: Running E2E tests
         run: npm run test:e2e
