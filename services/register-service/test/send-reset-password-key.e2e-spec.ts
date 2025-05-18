@@ -19,6 +19,8 @@ describe('send-reset-password-key controller (e2e)', () => {
 		email: 'dequeliteTesterSRPK@gmail.com',
 	};
 
+	const testingUserPassword = 'testing-strong-password';
+
 	const mailServiceMock = {
 		sendMail: jest.fn().mockResolvedValue(true),
 	};
@@ -48,7 +50,7 @@ describe('send-reset-password-key controller (e2e)', () => {
 			testingUser.email,
 			testingUser.username,
 			prisma,
-			'some-password',
+			testingUserPassword,
 		);
 	});
 

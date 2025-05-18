@@ -19,6 +19,7 @@ describe('SignUpController (e2e)', () => {
 		username: 'dequeliteTestSUC',
 		email: 'dequeliteTestSUC@gmail.com',
 	};
+	const testingUserPassword = 'testing-strong-password';
 
 	beforeAll(async () => {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-require-imports
@@ -48,7 +49,7 @@ describe('SignUpController (e2e)', () => {
 			.send({
 				email: testingUser.email,
 				username: testingUser.username,
-				password: 'strongPassword',
+				password: testingUserPassword,
 			})
 			.expect(201);
 
@@ -73,7 +74,7 @@ describe('SignUpController (e2e)', () => {
 			.send({
 				email: testingUser.email,
 				username: testingUser.username,
-				password: 'strongPassword',
+				password: testingUserPassword,
 			})
 			.expect(400);
 	});

@@ -8,6 +8,7 @@ import { GoogleStrategy } from '../src/sign/google-sign/google.strategy';
 import {
 	clearTestingUserData,
 	createTestingUser,
+	TestingUsersTypes,
 } from './utils/userTestingData.util';
 import { UsersRoles } from 'omma-shared-lib/generated/prisma';
 
@@ -19,6 +20,13 @@ describe('PorfileController (e2e)', () => {
 
 	const newUsername = 'dequeliteTesterUpdated';
 	const newEmail = 'updateduser@gmail.com';
+
+	const testingUser: TestingUsersTypes = {
+		username: 'dequeliteTester',
+		email: 'testuser@gmail.com',
+	};
+
+	const testingUserPassword = 'testing-strong-password';
 
 	beforeAll(async () => {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-require-imports
@@ -39,12 +47,17 @@ describe('PorfileController (e2e)', () => {
 
 		await clearTestingUserData('testuser@gmail.com', newEmail, prisma);
 
-		await createTestingUser('testuser@gmail.com', 'dequeliteTester', prisma);
+		await createTestingUser(
+			testingUser.email,
+			testingUser.username,
+			prisma,
+			testingUserPassword,
+		);
 
 		token = jwtService.sign(
 			{
-				email: 'testuser@gmail.com',
-				username: 'dequeliteTester',
+				email: testingUser.email,
+				username: testingUser.username,
 				role: UsersRoles.USER,
 			},
 			{
@@ -65,8 +78,8 @@ describe('PorfileController (e2e)', () => {
 			message: 'access granted',
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			user: expect.objectContaining({
-				email: 'testuser@gmail.com',
-				username: 'dequeliteTester',
+				email: testingUser.email,
+				username: testingUser.username,
 				role: 'USER',
 			}),
 		});
@@ -78,7 +91,7 @@ describe('PorfileController (e2e)', () => {
 			.patch('/auth/profile/change-password')
 			.set('Authorization', `Bearer ${token}`)
 			.send({
-				oldPassword: 'hashed-password',
+				oldPassword: testingUserPassword,
 				newPassword: 'newStrongPassword',
 			})
 			.expect(200);
@@ -119,7 +132,7 @@ describe('PorfileController (e2e)', () => {
 	});
 
 	afterAll(async () => {
-		await clearTestingUserData('testuser@gmail.com', newEmail, prisma);
+		await clearTestingUserData(testingUser.email, newEmail, prisma);
 		await app.close();
 	});
 });

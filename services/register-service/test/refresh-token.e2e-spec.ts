@@ -20,6 +20,13 @@ describe('PorfileController (e2e)', () => {
 	let token: string;
 	let userData: TestingUsersTypes;
 
+	const testingUser: TestingUsersTypes = {
+		username: 'testuserRF',
+		email: 'testuserRF@gmail.com',
+	};
+
+	const testingUserPassword = 'testing-strong-password';
+
 	beforeAll(async () => {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-require-imports
 		require('dotenv').config({ path: '.env.test' });
@@ -39,12 +46,13 @@ describe('PorfileController (e2e)', () => {
 		prisma = app.get(PrismaService);
 		jwtService = app.get(JwtService);
 
-		await clearTestingUserData('testuser2@gmail.com', '', prisma);
+		await clearTestingUserData(testingUser.email, '', prisma);
 
 		userData = await createTestingUser(
-			'testuser2@gmail.com',
-			'dequeliteTester2',
+			testingUser.email,
+			testingUser.username,
 			prisma,
+			testingUserPassword,
 		);
 
 		token = jwtService.sign(
@@ -56,6 +64,8 @@ describe('PorfileController (e2e)', () => {
 				expiresIn: '1h',
 			},
 		);
+
+			console.log('Resetting password for userId:', userData.id);
 
 		await prisma.additionalUserData.update({
 			where: {
@@ -86,7 +96,7 @@ describe('PorfileController (e2e)', () => {
 	});
 
 	afterAll(async () => {
-		await clearTestingUserData('testuser2@gmail.com', '', prisma);
+		await clearTestingUserData(testingUser.email, '', prisma);
 		await app.close();
 	});
 });

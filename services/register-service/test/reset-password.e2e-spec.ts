@@ -15,9 +15,11 @@ describe('reset-password controller (e2e)', () => {
 	let prisma: PrismaService;
 
 	const testingUser: TestingUsersTypes = {
-		username: 'dequeliteTesterRP',
-		email: 'dequeliteTesterSRPK@gmail.com',
+		username: 'dequeliteTesterSRPKf',
+		email: 'dequeliteTesterSRPKf@gmail.com',
 	};
+
+	const testingUserPassword = 'testing-strong-password';
 
 	const mailServiceMock = {
 		sendMail: jest.fn().mockResolvedValue(true),
@@ -44,7 +46,12 @@ describe('reset-password controller (e2e)', () => {
 
 		await clearTestingUserData(testingUser.email, '', prisma);
 
-		await createTestingUser(testingUser.email, testingUser.username, prisma);
+		await createTestingUser(
+			testingUser.email,
+			testingUser.username,
+			prisma,
+			testingUserPassword,
+		);
 	});
 
 	it('/api/forgot-password/reset-password (POST) - 200', async () => {
