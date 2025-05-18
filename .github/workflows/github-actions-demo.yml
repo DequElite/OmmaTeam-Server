@@ -12,6 +12,19 @@ jobs:
   register-service:
     name: Run tests for register-service
     runs-on : ubuntu-latest
+    postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD:  ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: omma_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     defaults:
       run: 
         working-directory: services/register-service
@@ -20,6 +33,12 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '18'
+      - name: Wait for PostgreSQL
+        run: |
+          until pg_isready -h localhost -p 5432; do
+            echo "Waiting for postgres..."
+            sleep 1
+          done
       - name: Installing dependencies
         run: npm install
       - name: Building the app 
