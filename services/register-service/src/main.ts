@@ -49,7 +49,7 @@ async function bootstrap() {
 		credentials: true,
 	});
 
-	await app.listen(process.env.PORT ?? 9002);
+	await app.listen(9002);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
