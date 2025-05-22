@@ -57,5 +57,23 @@ jobs:
 
       - name: Building the app
         run: npm run build
+
+      - name: Check omma-shared-lib package version
+        run: |
+          local_version=$(npm list omma-shared-lib --json | jq -r '.dependencies["omma-shared-lib"].version' || echo "not_installed")
+          latest_version=$(npm view omma-shared-lib version)
+          echo "Local version: $local_version"
+          echo "Latest version: $latest_version"
+          if [ "$local_version" = "not_installed" ]; then
+            echo "::warning::omma-shared-lib is not installed locally."
+          elif [ "$local_version" != "$latest_version" ]; then
+            echo "::warning::New version of omma-shared-lib available! Local: $local_version, Latest: $latest_version"
+            exit 1
+          else
+            echo "omma-shared-lib is up-to-date."
+          fi
+        shell: bash
+
+
       - name: Running  E2E tests
         run: npm run test:e2e

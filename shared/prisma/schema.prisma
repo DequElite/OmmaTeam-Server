@@ -29,6 +29,11 @@ enum SubTasksStatus {
   COMPLETED
 }
 
+enum NotificationTypes {
+  GLOBAL
+  PERSONAL
+}
+
 model User {
   id       String @id @default(uuid())
   email    String @unique
@@ -63,7 +68,22 @@ model AdditionalUserData {
   user   User   @relation(fields: [userId], references: [id])
   userId String @unique
 
+  notifications Notification[] @relation("UserNotifications")
+
   @@map("additional_user_data")
+}
+
+model Notification {
+  id String @id @default(uuid())
+
+  // type NotificationTypes @default(GLOBAL)
+
+  user   AdditionalUserData   @relation("UserNotifications", fields: [userId], references: [userId])
+  userId String 
+
+  desc String
+
+  DateOfSend DateTime @default(now())
 }
 
 model Team {

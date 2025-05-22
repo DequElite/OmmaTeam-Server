@@ -136,6 +136,13 @@ exports.Prisma.AdditionalUserDataScalarFieldEnum = {
   userId: 'userId'
 };
 
+exports.Prisma.NotificationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  desc: 'desc',
+  DateOfSend: 'DateOfSend'
+};
+
 exports.Prisma.TeamScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -214,6 +221,7 @@ exports.SubTasksStatus = exports.$Enums.SubTasksStatus = {
 exports.Prisma.ModelName = {
   User: 'User',
   AdditionalUserData: 'AdditionalUserData',
+  Notification: 'Notification',
   Team: 'Team',
   Task: 'Task',
   SubTask: 'SubTask',
