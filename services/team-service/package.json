@@ -26,7 +26,7 @@
     "@nestjs/swagger": "^11.2.0",
     "cookie-parser": "^1.4.7",
     "dotenv": "^16.5.0",
-    "omma-shared-lib": "^0.0.28",
+    "omma-shared-lib": "^0.0.29",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   },
