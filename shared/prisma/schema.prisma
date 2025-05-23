@@ -45,11 +45,8 @@ model User {
 
   additional_data AdditionalUserData?
 
-  teams         Team[] @relation("UserTeams")
+  teams         Teammate[] @relation("UserTeammate")
   teamsAsLeader Team[] @relation("TeamLeader")
-
-  assigned_tasks Task[]    @relation("UserTasks")
-  sentMessages   Message[] @relation("UserMessages")
 
   @@map("users")
 }
@@ -78,8 +75,8 @@ model Notification {
 
   // type NotificationTypes @default(GLOBAL)
 
-  user   AdditionalUserData   @relation("UserNotifications", fields: [userId], references: [userId])
-  userId String 
+  additionalUserData   AdditionalUserData   @relation("UserNotifications", fields: [additionalUserDataId], references: [id])
+  additionalUserDataId String 
 
   desc String
 
@@ -95,13 +92,30 @@ model Team {
 
   createdAt DateTime @default(now()) @map("created_at")
 
-  members User[] @relation("UserTeams")
+  teammates Teammate[] @relation("TeamTeammate")
 
   tasks Task[] @relation("TeamTask")
 
   team_chat Chat? @relation("TeamChat")
 
   @@map("teams")
+}
+
+model Teammate {
+  id String @id @default(uuid())
+
+  user   User?   @relation("UserTeammate", fields: [userId], references: [id])
+  userId String?
+
+  inviteToken String? @unique
+  inviteExpiresAt DateTime? 
+  isAccepted Boolean @default(false)
+
+  team Team @relation("TeamTeammate", fields: [teamId], references: [id])
+  teamId String
+
+  assigned_tasks Task[]    @relation("UserTasks")
+  sentMessages   Message[] @relation("UserMessages")
 }
 
 model Task {
@@ -121,8 +135,8 @@ model Task {
   team   Team   @relation("TeamTask", fields: [teamId], references: [id])
   teamId String
 
-  for_user   User   @relation("UserTasks", fields: [for_userId], references: [id])
-  for_userId String
+  assignedTo   Teammate   @relation("UserTasks", fields: [assignedToId], references: [id])
+  assignedToId String
 
   @@map("tasks")
 }
@@ -158,7 +172,7 @@ model Message {
 
   createdAt DateTime @default(now()) @map("created_at")
 
-  sender   User   @relation("UserMessages", fields: [senderId], references: [id])
+  sender   Teammate   @relation("UserMessages", fields: [senderId], references: [id])
   senderId String
 
   message_text String

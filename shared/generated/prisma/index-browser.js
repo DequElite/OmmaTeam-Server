@@ -138,7 +138,7 @@ exports.Prisma.AdditionalUserDataScalarFieldEnum = {
 
 exports.Prisma.NotificationScalarFieldEnum = {
   id: 'id',
-  userId: 'userId',
+  additionalUserDataId: 'additionalUserDataId',
   desc: 'desc',
   DateOfSend: 'DateOfSend'
 };
@@ -148,6 +148,15 @@ exports.Prisma.TeamScalarFieldEnum = {
   name: 'name',
   leaderId: 'leaderId',
   createdAt: 'createdAt'
+};
+
+exports.Prisma.TeammateScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  inviteToken: 'inviteToken',
+  inviteExpiresAt: 'inviteExpiresAt',
+  isAccepted: 'isAccepted',
+  teamId: 'teamId'
 };
 
 exports.Prisma.TaskScalarFieldEnum = {
@@ -160,7 +169,7 @@ exports.Prisma.TaskScalarFieldEnum = {
   isCompleted: 'isCompleted',
   description: 'description',
   teamId: 'teamId',
-  for_userId: 'for_userId'
+  assignedToId: 'assignedToId'
 };
 
 exports.Prisma.SubTaskScalarFieldEnum = {
@@ -223,6 +232,7 @@ exports.Prisma.ModelName = {
   AdditionalUserData: 'AdditionalUserData',
   Notification: 'Notification',
   Team: 'Team',
+  Teammate: 'Teammate',
   Task: 'Task',
   SubTask: 'SubTask',
   Chat: 'Chat',
