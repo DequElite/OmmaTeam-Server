@@ -227,7 +227,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/media/dequelite/Новий том/Documents/web/OmmaTeam.DequElite/back-end/shared/generated/prisma",
+      "value": "/run/media/dequelite/Новий том/Documents/web/OmmaTeam.DequElite/back-end/shared/generated/prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -241,7 +241,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/media/dequelite/Новий том/Documents/web/OmmaTeam.DequElite/back-end/shared/prisma/schema.prisma",
+    "sourceFilePath": "/run/media/dequelite/Новий том/Documents/web/OmmaTeam.DequElite/back-end/shared/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -255,11 +255,12 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
+  "postinstall": true,
   "inlineDatasources": {
     "db": {
       "url": {
         "fromEnvVar": "DATABASE_URL",
-        "value": "postgresql://postgres:YI_2024@suka@localhost:5432/omma_db?schema=public"
+        "value": null
       }
     }
   },
