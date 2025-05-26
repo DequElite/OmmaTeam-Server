@@ -51,13 +51,14 @@ export class TeamController {
   ) {
     try {
       const user = req.user;
+      console.log('USER AT CREATE TEAM SERVICE: ', user);
       if (!user) {
         throw new HttpException('UNAUTHORIZED', HttpStatus.UNAUTHORIZED);
       }
 
       const { message, team } = await this.teamService.createTeam({
         name: body.name,
-        leaderId: user.id,
+        email: user.email,
       });
       return {
         message,

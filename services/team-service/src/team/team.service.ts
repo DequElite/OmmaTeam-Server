@@ -8,7 +8,7 @@ export class TeamService {
   constructor(private readonly prisma: PrismaService) {}
 
   public async createTeam(dto: CreateTeamServiceDto) {
-    const user = await this.checkIfUserExists(dto.leaderId);
+    const user = await this.checkIfUserExists(dto.email);
 
     const isTeamExists = await this.checkIfTeamExistsByName(dto.name);
     if (isTeamExists) {
@@ -41,6 +41,10 @@ export class TeamService {
     if (!isTeamExists) {
       throw new HttpException('TEAM_NOT_FOUND', HttpStatus.NOT_FOUND);
     }
+    
+    await this.prisma.teammate.deleteMany({
+      where: { teamId },
+    });
 
     await this.prisma.team.delete({
       where: { id: teamId },
@@ -50,9 +54,9 @@ export class TeamService {
     };
   }
 
-  private async checkIfUserExists(userId: string): Promise<User> {
+  private async checkIfUserExists(email: string): Promise<User> {
     const user = await this.prisma.user.findUnique({
-      where: { id: userId },
+      where: { email: email },
     });
 
     if (!user) {

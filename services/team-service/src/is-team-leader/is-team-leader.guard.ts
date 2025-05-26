@@ -37,10 +37,22 @@ export class IsTeamLeaderGuard implements CanActivate {
         teammates: true,
       },
     });
+
+    const teammateAsUser = await this.prisma.user.findUnique({
+      where: {
+        email: user.email,
+      },
+    });
+
+    if (!teammateAsUser) {
+      throw new HttpException('TEAMMATEASUSER_NOT_EXIST', HttpStatus.NOT_FOUND);
+    }
+
+    console.log('USER AT TEAM GUARD: ', teammateAsUser);
     if (!team) {
       throw new HttpException('TEAM_NOT_EXIST', HttpStatus.NOT_FOUND);
     }
-    if (team.leaderId !== user.id) {
+    if (team.leaderId !== teammateAsUser.id) {
       throw new HttpException('USER_NOT_TEAM_LEADER', HttpStatus.FORBIDDEN);
     }
     req['team'] = team;

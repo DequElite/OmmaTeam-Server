@@ -46,8 +46,19 @@ export class TeamGuardGuard implements CanActivate {
       throw new HttpException('TEAM_NOT_EXIST', HttpStatus.NOT_FOUND);
     }
 
+    const teammateAsUser = await this.prisma.user.findUnique({
+      where: {
+        email: user.email,
+      },
+    });
+
+    if (!teammateAsUser) {
+      throw new HttpException('TEAMMATEASUSER_NOT_EXIST', HttpStatus.NOT_FOUND);
+    }
+
     const isTeamMate = team.teammates.some(
-      (teammate) => teammate.userId === user.id && teammate.isAccepted,
+      (teammate) =>
+        teammate.userId === teammateAsUser.id && teammate.isAccepted,
     );
 
     if (!isTeamMate) {

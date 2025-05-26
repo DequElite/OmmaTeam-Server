@@ -1,4 +1,4 @@
-import { IsString, IsUUID } from 'class-validator';
+import { IsEmail, IsString, IsUUID } from 'class-validator';
 
 export class CreateTeamControllerDto {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
@@ -16,6 +16,6 @@ export class CreateTeamServiceDto {
   name: string;
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  @IsUUID()
-  leaderId: string;
+  @IsEmail()
+  email: string;
 }
