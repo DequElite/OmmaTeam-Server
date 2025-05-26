@@ -14,21 +14,6 @@ async function bootstrap() {
 	app.setGlobalPrefix('api');
 	app.useGlobalPipes(new ValidationPipe());
 
-	// const server = app.getHttpServer();
-	// const routes = server._router?.stack || [];
-
-	// const filteredRoutes = routes
-	//   .filter((r: any) => r.route)
-	//   .map((r: any) => ({
-	//     method: r.route.stack[0].method.toUpperCase(),
-	//     path: r.route.path,
-	//   }));
-
-	// console.log('Routes:');
-	// filteredRoutes.forEach(route => {
-	//   console.log(`${route.method} ${route.path}`);
-	// });
-
 	const apiDocsConfig = new DocumentBuilder()
 		.setTitle('OmmaTeam Server: register service API')
 		.setDescription('Documentation for the REST API of the register service')
