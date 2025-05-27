@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { MailService, PrismaService } from 'omma-shared-lib';
 import { InviteUserDto } from './dto/Invite.dto';
 import { randomUUID } from 'crypto';
+import inviteEmail from './inviteEmail.template';
 
 @Injectable()
 export class TeammatesService {
@@ -37,7 +38,32 @@ export class TeammatesService {
       team.id,
     );
 
-    //todo: доделать эту функцию инвайта
+    const inviteLinkDomain =
+      process.env.APP_MODE === 'DEV'
+        ? process.env.EMAIL_DEV_RESET_LINK
+        : process.env.EMAIL_PROD_RESET_LINK;
+    const inviteLink = `${inviteLinkDomain}${inviteToken}`;
+
+    const inviteEmailTemplate = inviteEmail(inviteLink, team.name, team.name);
+
+    try {
+      await this.mail.sendMail(
+        user.email,
+        'Team invite link',
+        inviteEmailTemplate,
+      );
+
+      return {
+        message: 'An invite link has been sent',
+      };
+    } catch (err) {
+      console.error('Error while sending invite email: ', err);
+
+      throw new HttpException(
+        'INVITE_SENDING_FAILED',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   private generateInviteToken() {
@@ -99,6 +125,18 @@ export class TeammatesService {
       },
     });
 
-    return !!teammate;
+    if (!teammate) {
+      return false;
+    }
+
+    if (teammate.isAccepted) {
+      return true;
+    }
+
+    const isInviteStillValid =
+      teammate.inviteExpiresAt &&
+      teammate.inviteExpiresAt.getTime() > Date.now();
+
+    return isInviteStillValid;
   }
 }

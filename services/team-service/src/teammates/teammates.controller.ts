@@ -21,11 +21,15 @@ export class TeammatesController {
   constructor(private readonly teammatesService: TeammatesService) {}
 
   @UseGuards(JwtauthGuard, TeamGuardGuard, IsTeamLeaderGuard)
-  @Post('invite')
+  @Post('invite/:id')
   @HttpCode(HttpStatus.OK)
   public async invite(@Body() body: InviteUserDto) {
     try {
       const { message } = await this.teammatesService.inviteByMail(body);
+
+      return {
+        message,
+      };
     } catch (err) {
       console.error('Error during creating team:', err);
 
