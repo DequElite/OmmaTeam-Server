@@ -7,12 +7,10 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'omma-shared-lib';
 import { User } from 'omma-shared-lib/generated/prisma';
+import { Request } from 'express';
 
 interface IRequestWithUser extends Request {
   user?: User;
-  params?: {
-    id?: any;
-  };
 }
 
 @Injectable()

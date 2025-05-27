@@ -7,12 +7,10 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'omma-shared-lib';
 import { User } from 'omma-shared-lib/generated/prisma';
+import { Request } from 'express';
 
 interface IRequestWithUser extends Request {
   user?: User;
-  params?: {
-    id?: any;
-  };
 }
 
 @Injectable()
@@ -23,7 +21,7 @@ export class IsTeamLeaderGuard implements CanActivate {
     const req = context.switchToHttp().getRequest<IRequestWithUser>();
     const user = req.user;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const teamId = req.params?.id;
+    const teamId = req.params.id;
 
     if (!user || !teamId) {
       throw new HttpException('USER_OR_TEAM_NOT_EXIST', HttpStatus.FORBIDDEN);

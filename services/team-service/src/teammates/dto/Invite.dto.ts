@@ -11,3 +11,15 @@ export class InviteUserDto {
   })
   teamId: string;
 }
+
+export class AcceptInvationDto {
+  @IsString({
+    message: 'Email must be a string',
+  })
+  email: string;
+
+  @IsUUID(undefined, {
+    message: 'Invite token must be a uuid',
+  })
+  inviteToken: string;
+}

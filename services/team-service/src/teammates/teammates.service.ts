@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { MailService, PrismaService } from 'omma-shared-lib';
-import { InviteUserDto } from './dto/Invite.dto';
+import { AcceptInvationDto, InviteUserDto } from './dto/Invite.dto';
 import { randomUUID } from 'crypto';
 import inviteEmail from './inviteEmail.template';
 
@@ -64,6 +64,21 @@ export class TeammatesService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  public async acceptInvation(dto: AcceptInvationDto, teamId: string) {
+    const teammate = await this.checkIfTeammateExistByAcceptInvation(
+      dto.email,
+      teamId,
+    );
+    if (!teammate) {
+      throw new HttpException(
+        'TEAMMATE_OR_USER_NOT_EXIST',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    //todo: доделай acceptInvation
   }
 
   private generateInviteToken() {
@@ -138,5 +153,25 @@ export class TeammatesService {
       teammate.inviteExpiresAt.getTime() > Date.now();
 
     return isInviteStillValid;
+  }
+
+  private async checkIfTeammateExistByAcceptInvation(
+    email: string,
+    teamId: string,
+  ) {
+    const user = await this.getUser(email);
+
+    if (!user) {
+      return false;
+    }
+
+    const teammate = await this.prisma.teammate.findFirst({
+      where: {
+        userId: user?.id,
+        teamId: teamId,
+      },
+    });
+
+    return teammate;
   }
 }
