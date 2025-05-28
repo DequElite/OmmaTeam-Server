@@ -1,6 +1,10 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { MailService, PrismaService } from 'omma-shared-lib';
-import { AcceptInvationDto, InviteUserDto } from './dto/Invite.dto';
+import {
+  AcceptInvationDto,
+  DeleteTeammateDto,
+  InviteUserDto,
+} from './dto/Invite.dto';
 import { randomUUID } from 'crypto';
 import inviteEmail from './inviteEmail.template';
 
@@ -10,6 +14,25 @@ export class TeammatesService {
     private readonly prisma: PrismaService,
     private readonly mail: MailService,
   ) {}
+
+  public async deleteTeammtae(dto: DeleteTeammateDto) {
+    const teammate = await this.prisma.teammate.findUnique({
+      where: { id: dto.teammateId, teamId: dto.teamId },
+    });
+    if (!teammate) {
+      throw new HttpException('TEAMMATE_NOT_EXISTS', HttpStatus.NOT_FOUND);
+    }
+
+    await this.prisma.teammate.delete({
+      where: {
+        id: teammate.id,
+      },
+    });
+
+    return {
+      message: 'Teammate deleted success',
+    };
+  }
 
   public async inviteByMail(dto: InviteUserDto) {
     const user = await this.checkIfUserExists(dto.email);
@@ -66,10 +89,10 @@ export class TeammatesService {
     }
   }
 
-  public async acceptInvation(dto: AcceptInvationDto, teamId: string) {
+  public async acceptInvation(dto: AcceptInvationDto) {
     const teammate = await this.checkIfTeammateExistByAcceptInvation(
       dto.email,
-      teamId,
+      dto.inviteToken,
     );
     if (!teammate) {
       throw new HttpException(
@@ -78,7 +101,53 @@ export class TeammatesService {
       );
     }
 
-    //todo: доделай acceptInvation
+    const isInviteTokenExpired =
+      await this.checkIfInviteTokenExistsAndNotExpired(dto.inviteToken);
+    if (isInviteTokenExpired) {
+      throw new HttpException('INVITE_TOKEN_EXIPRED', HttpStatus.BAD_REQUEST);
+    }
+
+    await this.saveAcceptedTeammateData(teammate.id);
+
+    return {
+      message: 'Invation accepted success',
+      teamId: teammate.teamId,
+    };
+  }
+
+  private async saveAcceptedTeammateData(teammateId: string) {
+    await this.prisma.teammate.update({
+      where: {
+        id: teammateId,
+      },
+      data: {
+        isAccepted: true,
+        inviteToken: null,
+      },
+    });
+  }
+
+  private async checkIfInviteTokenExistsAndNotExpired(
+    inviteToken: string,
+  ): Promise<boolean> {
+    const teammateWithToken = await this.prisma.teammate.findUnique({
+      where: {
+        inviteToken,
+      },
+    });
+
+    if (!teammateWithToken) {
+      return false;
+    }
+
+    if (
+      teammateWithToken?.inviteExpiresAt &&
+      teammateWithToken?.inviteExpiresAt?.getTime() > Date.now()
+    ) {
+      return false;
+    }
+
+    return true;
   }
 
   private generateInviteToken() {
@@ -157,7 +226,7 @@ export class TeammatesService {
 
   private async checkIfTeammateExistByAcceptInvation(
     email: string,
-    teamId: string,
+    inviteToken: string,
   ) {
     const user = await this.getUser(email);
 
@@ -168,7 +237,7 @@ export class TeammatesService {
     const teammate = await this.prisma.teammate.findFirst({
       where: {
         userId: user?.id,
-        teamId: teamId,
+        inviteToken,
       },
     });
 

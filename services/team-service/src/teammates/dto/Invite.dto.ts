@@ -1,4 +1,4 @@
-import { IsString, IsUUID } from 'class-validator';
+import { IsEmail, IsString, IsUUID } from 'class-validator';
 
 export class InviteUserDto {
   @IsString({
@@ -22,4 +22,16 @@ export class AcceptInvationDto {
     message: 'Invite token must be a uuid',
   })
   inviteToken: string;
+}
+
+export class DeleteTeammateDto {
+  @IsUUID(undefined, {
+    message: 'TeamId must be a uuid',
+  })
+  teamId: string;
+
+  @IsUUID(undefined, {
+    message: 'TeammateeId must be a uuid',
+  })
+  teammateId: string;
 }
