@@ -1,21 +1,25 @@
-import { IsEmail, IsString, IsUUID } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsEmail, IsString } from 'class-validator';
 
 export class CreateTeamControllerDto {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   @IsString({
     message: 'Name must be a string',
   })
+  @ApiProperty({ example: 'DexTeam', description: 'Team name' })
   name: string;
 }
 
 export class CreateTeamServiceDto {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   @IsString({
     message: 'Name must be a string',
   })
+  @ApiProperty({ example: 'DexTeam', description: 'Team name' })
   name: string;
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  @IsEmail()
+  @IsEmail({}, { message: 'Email must be valid' })
+  @ApiProperty({
+    example: 'dexteamleader@gmail.com',
+    description: 'Leader mail',
+  })
   email: string;
 }

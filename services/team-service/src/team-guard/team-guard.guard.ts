@@ -27,7 +27,7 @@ export class TeamGuardGuard implements CanActivate {
     const teamId = req.params?.id;
 
     if (!user || !teamId) {
-      throw new HttpException('USER_OR_TEAM_NOT_EXIST', HttpStatus.FORBIDDEN);
+      throw new HttpException('USER_OR_TEAM_NOT_EXIST', HttpStatus.BAD_REQUEST);
     }
 
     const team = await this.prisma.team.findUnique({
