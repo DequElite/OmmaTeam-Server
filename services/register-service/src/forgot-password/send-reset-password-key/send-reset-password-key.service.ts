@@ -26,8 +26,8 @@ export class SendResetPasswordKeyService {
 
 		const resetLinkDomain =
 			process.env.APP_MODE === 'DEV'
-				? process.env.INVITE_DEV_LINK
-				: process.env.INVITE_PROD_LINK;
+				? process.env.EMAIL_DEV_RESET_LINK
+				: process.env.EMAIL_PROD_RESET_LINK;
 		const resetLink = `${resetLinkDomain}${resetToken}`;
 
 		const mailResetPasswordTemplate = emailResetPassword(resetLink);
