@@ -42,6 +42,56 @@ export class ProfileController {
 	}
 
 	@UseGuards(JwtauthGuard)
+	@Get('/teams')
+	@ApiOperation({ summary: 'Get user teams data from auth token' })
+	@ApiResponse({
+		status: 200,
+		description: 'User teams data retrieved successfully',
+	})
+	@ApiResponse({
+		status: 401,
+		description: 'Unauthorized',
+	})
+	@ApiResponse({
+		status: 400,
+		description: 'User id not exists',
+	})
+	@ApiResponse({
+		status: 404,
+		description: 'User not found',
+	})
+	@HttpCode(HttpStatus.OK)
+	public async getUserTeamsData(@Req() req: Request) {
+		try {
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
+			const userData = req.user as any;
+
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+			if (!userData || !userData.email) {
+				throw new HttpException('USERID_NOT_EXIST', HttpStatus.BAD_REQUEST);
+			}
+
+			const { message, teams } = await this.profileService.getUserTeamsData(
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+				userData.email,
+			);
+
+			return {
+				message,
+				teams,
+			};
+		} catch (err) {
+			console.error('Error during getting user data: ', err);
+
+			if (err instanceof HttpException) {
+				throw err;
+			}
+
+			throw new InternalServerErrorException('INTERNAL_SERVER_ERROR');
+		}
+	}
+
+	@UseGuards(JwtauthGuard)
 	@Patch('/change-password')
 	@ApiOperation({ summary: 'Change user password' })
 	@ApiOperation({ summary: 'Change user password' })

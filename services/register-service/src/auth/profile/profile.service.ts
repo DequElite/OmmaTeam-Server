@@ -4,6 +4,7 @@ import { TPartialChange, TPasswordChangeDto } from '../dto/changeAuth.dto';
 import { User } from 'omma-shared-lib/generated/prisma';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { getUserTeamsDataDto } from '../dto/getUserData.dto';
 
 @Injectable()
 export class ProfileService {
@@ -12,6 +13,20 @@ export class ProfileService {
 		private readonly jwt: JwtService,
 		private readonly registerFunctions: RegisterFunctionsService,
 	) {}
+
+	public async getUserTeamsData(dto: getUserTeamsDataDto) {
+		const isUserExist = await this.checkIfUserExistByEmailAndReturnTeamData(
+			dto.email,
+		);
+		if (!isUserExist.isExist || !isUserExist.user) {
+			throw new HttpException('USER_NOT_EXIST', HttpStatus.NOT_FOUND);
+		}
+
+		return {
+			message: 'Successfully got team data',
+			teams: isUserExist.user.teams,
+		};
+	}
 
 	public async changeUserData(dto: TPartialChange, userData: any) {
 		const isUserExist = await this.checkIfUserExist(userData.email);
@@ -92,6 +107,40 @@ export class ProfileService {
 		const user = await this.prisma.user.findUnique({
 			where: {
 				email,
+			},
+		});
+
+		return {
+			user,
+			isExist: !!user,
+		};
+	}
+
+	private async checkIfUserExistByEmailAndReturnTeamData(email: string) {
+		const user = await this.prisma.user.findUnique({
+			where: {
+				email,
+			},
+			include: {
+				teams: {
+					select: {
+						team: {
+							select: {
+								id: true,
+								leader: {
+									select: {
+										email: true,
+									},
+								},
+							},
+						},
+						assigned_tasks: {
+							select: {
+								id: true,
+							},
+						},
+					},
+				},
 			},
 		});
 
