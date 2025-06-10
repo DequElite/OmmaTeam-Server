@@ -66,6 +66,8 @@ export class ProfileController {
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
 			const userData = req.user as any;
 
+			console.log(userData);
+
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 			if (!userData || !userData.email) {
 				throw new HttpException('USERID_NOT_EXIST', HttpStatus.BAD_REQUEST);

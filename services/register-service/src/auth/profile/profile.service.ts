@@ -14,10 +14,9 @@ export class ProfileService {
 		private readonly registerFunctions: RegisterFunctionsService,
 	) {}
 
-	public async getUserTeamsData(dto: getUserTeamsDataDto) {
-		const isUserExist = await this.checkIfUserExistByEmailAndReturnTeamData(
-			dto.email,
-		);
+	public async getUserTeamsData(email: string) {
+		const isUserExist =
+			await this.checkIfUserExistByEmailAndReturnTeamData(email);
 		if (!isUserExist.isExist || !isUserExist.user) {
 			throw new HttpException('USER_NOT_EXIST', HttpStatus.NOT_FOUND);
 		}
@@ -127,6 +126,7 @@ export class ProfileService {
 						team: {
 							select: {
 								id: true,
+								name: true,
 								leader: {
 									select: {
 										email: true,
