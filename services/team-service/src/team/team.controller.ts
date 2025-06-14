@@ -17,7 +17,13 @@ import { TeamGuardGuard } from 'src/team-guard/team-guard.guard';
 import { Team, User } from 'omma-shared-lib/generated/prisma';
 import { CreateTeamControllerDto } from './dto/createTeam.dto';
 import { IsTeamLeaderGuard } from 'src/is-team-leader/is-team-leader.guard';
-import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 interface IRequestWithTeam extends Request {
   team?: Team;
@@ -56,7 +62,7 @@ export class TeamController {
   @ApiParam({
     name: 'id',
     description: 'ID of the team',
-    example: '123e4567-e89b-12d3-a456-426614174000', // класний UUID
+    example: '123e4567-e89b-12d3-a456-426614174000',
   })
   public getTeam(@Req() req: IRequestWithTeam) {
     const team = req.team;
@@ -146,6 +152,61 @@ export class TeamController {
 
       const { message } = await this.teamService.deleteTeam(team.id);
       return { message };
+    } catch (err) {
+      console.error('Error during deleting team:', err);
+
+      if (err instanceof HttpException) {
+        throw err;
+      }
+
+      throw new InternalServerErrorException('INTERNAL_SERVER_ERROR');
+    }
+  }
+
+  @UseGuards(JwtauthGuard, TeamGuardGuard, IsTeamLeaderGuard)
+  @Post('/change/name/:id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Change team name' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Team deleted successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'user and teamId not exists',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'User not in team or user not leader of team',
+  })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Team not found',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'ID of the team',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  public async changeTeamName(
+    @Body() body: { name: string },
+    @Req() req: IRequestWithTeam,
+  ) {
+    try {
+      const team = req.team;
+      if (!team) {
+        throw new HttpException('TEAM_ID_BOT_EXISTS', HttpStatus.BAD_REQUEST);
+      }
+
+      const { message } = await this.teamService.changeTeamName({
+        id: team.id,
+        name: body.name,
+      });
+
+      return {
+        message,
+      };
     } catch (err) {
       console.error('Error during deleting team:', err);
 

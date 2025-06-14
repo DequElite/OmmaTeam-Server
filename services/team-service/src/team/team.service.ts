@@ -2,10 +2,31 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'omma-shared-lib';
 import { CreateTeamServiceDto } from './dto/createTeam.dto';
 import { User } from 'omma-shared-lib/generated/prisma';
+import { ChangeTeamNameDto } from './dto/changeTeam.dto';
 
 @Injectable()
 export class TeamService {
   constructor(private readonly prisma: PrismaService) {}
+
+  public async changeTeamName(dto: ChangeTeamNameDto) {
+    const isTeamExists = await this.checkIfTeamExistsById(dto.id);
+    if (!isTeamExists) {
+      throw new HttpException('TEAM_NOT_FOUND', HttpStatus.NOT_FOUND);
+    }
+
+    await this.prisma.team.update({
+      where: {
+        id: dto.id,
+      },
+      data: {
+        name: dto.name,
+      },
+    });
+
+    return {
+      message: 'Team name changed success',
+    };
+  }
 
   public async createTeam(dto: CreateTeamServiceDto) {
     const user = await this.checkIfUserExists(dto.email);
@@ -41,7 +62,7 @@ export class TeamService {
     if (!isTeamExists) {
       throw new HttpException('TEAM_NOT_FOUND', HttpStatus.NOT_FOUND);
     }
-    
+
     await this.prisma.teammate.deleteMany({
       where: { teamId },
     });
@@ -60,7 +81,7 @@ export class TeamService {
     });
 
     if (!user) {
-      throw new Error('User does not exist');
+      throw new HttpException('USER_NOT_FOUND', HttpStatus.NOT_FOUND);
     }
 
     return user;
