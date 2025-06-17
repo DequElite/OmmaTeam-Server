@@ -14,3 +14,8 @@ export class ChangeTeamNameDto {
   @ApiProperty({ example: 'DexTeam', description: 'Team name' })
   id: string;
 }
+
+export class ChangeTeamDto {
+  @IsString()
+  name: string;
+}

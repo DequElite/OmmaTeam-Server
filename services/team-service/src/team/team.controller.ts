@@ -24,6 +24,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { ChangeTeamDto } from './dto/changeTeam.dto';
 
 interface IRequestWithTeam extends Request {
   team?: Team;
@@ -190,7 +191,7 @@ export class TeamController {
     example: '123e4567-e89b-12d3-a456-426614174000',
   })
   public async changeTeamName(
-    @Body() body: { name: string },
+    @Body() body: ChangeTeamDto,
     @Req() req: IRequestWithTeam,
   ) {
     try {

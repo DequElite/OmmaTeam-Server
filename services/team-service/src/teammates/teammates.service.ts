@@ -101,8 +101,7 @@ export class TeammatesService {
       );
     }
 
-    const isInviteTokenExpired =
-      await this.checkIfInviteTokenExistsAndNotExpired(dto.inviteToken);
+    const isInviteTokenExpired = await this.isInviteTokenValid(dto.inviteToken);
     if (isInviteTokenExpired) {
       throw new HttpException('INVITE_TOKEN_EXIPRED', HttpStatus.BAD_REQUEST);
     }
@@ -127,9 +126,7 @@ export class TeammatesService {
     });
   }
 
-  private async checkIfInviteTokenExistsAndNotExpired(
-    inviteToken: string,
-  ): Promise<boolean> {
+  private async isInviteTokenValid(inviteToken: string): Promise<boolean> {
     const teammateWithToken = await this.prisma.teammate.findUnique({
       where: {
         inviteToken,

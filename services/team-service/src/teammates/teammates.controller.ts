@@ -19,6 +19,7 @@ import {
   DeleteTeammateDto,
   InviteUserDto,
 } from './dto/Invite.dto';
+import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 
 @Controller('teammates')
 export class TeammatesController {
@@ -27,6 +28,15 @@ export class TeammatesController {
   @UseGuards(JwtauthGuard, TeamGuardGuard, IsTeamLeaderGuard)
   @Post('invite/:id')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Invite user to team by email' })
+  @ApiParam({ name: 'id', required: true, description: 'Team ID' })
+  @ApiBody({ type: InviteUserDto })
+  @ApiResponse({ status: 200, description: 'Invite sent' })
+  @ApiResponse({
+    status: 400,
+    description: 'User already in team or bad request',
+  })
+  @ApiResponse({ status: 404, description: 'User or team not found' })
   public async invite(@Body() body: InviteUserDto) {
     try {
       const { message } = await this.teammatesService.inviteByMail(body);
@@ -48,6 +58,11 @@ export class TeammatesController {
   @UseGuards(JwtauthGuard)
   @Post('invite/accept')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Accept team invitation' })
+  @ApiBody({ type: AcceptInvationDto })
+  @ApiResponse({ status: 200, description: 'Invitation accepted' })
+  @ApiResponse({ status: 404, description: 'Teammate or token not found' })
+  @ApiResponse({ status: 400, description: 'Token expired or invalid' })
   public async acceptInvation(@Body() body: AcceptInvationDto) {
     try {
       const { message, teamId } =
@@ -71,6 +86,10 @@ export class TeammatesController {
   @UseGuards(JwtauthGuard, TeamGuardGuard, IsTeamLeaderGuard)
   @Delete('delete')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Delete teammate from team' })
+  @ApiBody({ type: DeleteTeammateDto })
+  @ApiResponse({ status: 200, description: 'Teammate deleted successfully' })
+  @ApiResponse({ status: 404, description: 'Teammate not found' })
   public async deleteTeammate(@Body() body: DeleteTeammateDto) {
     try {
       const { message } = await this.teammatesService.deleteTeammtae(body);
