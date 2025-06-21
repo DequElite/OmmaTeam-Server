@@ -34,6 +34,10 @@ interface IRequestWithUser extends Request {
   user?: User;
 }
 
+interface TeamResponse extends Team {
+  isLeader: boolean;
+}
+
 @ApiTags('Team')
 @Controller('team')
 export class TeamController {
@@ -65,12 +69,23 @@ export class TeamController {
     description: 'ID of the team',
     example: '123e4567-e89b-12d3-a456-426614174000',
   })
-  public getTeam(@Req() req: IRequestWithTeam) {
+  public getTeam(@Req() req: IRequestWithTeam & IRequestWithUser) {
     const team = req.team;
+    let teamData: TeamResponse;
+
+    if (!team) {
+      throw new HttpException('Team not found', HttpStatus.NOT_FOUND);
+    }
+
+    if (req.user && team?.leaderId === req.user.id) {
+      teamData = { ...team, isLeader: true };
+    } else {
+      teamData = { ...team, isLeader: false };
+    }
 
     return {
       message: 'access granted',
-      team,
+      team: teamData,
     };
   }
 

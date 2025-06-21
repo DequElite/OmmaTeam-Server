@@ -63,8 +63,8 @@ export class TeammatesService {
 
     const inviteLinkDomain =
       process.env.APP_MODE === 'DEV'
-        ? process.env.EMAIL_DEV_RESET_LINK
-        : process.env.EMAIL_PROD_RESET_LINK;
+        ? process.env.INVITE_DEV_LINK
+        : process.env.INVITE_PROD_LINK;
     const inviteLink = `${inviteLinkDomain}${inviteToken}`;
 
     const inviteEmailTemplate = inviteEmail(inviteLink, team.name, team.name);
