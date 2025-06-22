@@ -69,22 +69,24 @@ export class TeamController {
     description: 'ID of the team',
     example: '123e4567-e89b-12d3-a456-426614174000',
   })
-  public getTeam(@Req() req: IRequestWithTeam & IRequestWithUser) {
+  public async getTeam(@Req() req: IRequestWithTeam & IRequestWithUser) {
     const team = req.team;
-    let teamData: TeamResponse;
 
     if (!team) {
-      throw new HttpException('Team not found', HttpStatus.NOT_FOUND);
+      throw new HttpException('TEAM_NOT_FOUND', HttpStatus.NOT_FOUND);
     }
 
-    if (req.user && team?.leaderId === req.user.id) {
-      teamData = { ...team, isLeader: true };
-    } else {
-      teamData = { ...team, isLeader: false };
+    if (!req.user) {
+      throw new HttpException('USER_NOT_EXISTS', HttpStatus.BAD_REQUEST);
     }
+
+    const { message, team: teamData } = await this.teamService.getTeamData(
+      req.user?.email,
+      team,
+    );
 
     return {
-      message: 'access granted',
+      message: message,
       team: teamData,
     };
   }

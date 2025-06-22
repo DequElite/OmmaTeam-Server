@@ -26,6 +26,13 @@ export class TeamGuardGuard implements CanActivate {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const teamId = req.params?.id;
 
+
+  console.log('--- Гвард сработал ---');
+  console.log('Method:', req.method);           // GET, POST, DELETE и тд
+  console.log('URL:', req.originalUrl);         // полный путь запроса
+  console.log('Params:', req.params);           // параметры роутов :id и тп
+  console.log('Body:', req.body); 
+
     if (!user || !teamId) {
       throw new HttpException('USER_OR_TEAM_NOT_EXIST', HttpStatus.BAD_REQUEST);
     }
@@ -39,6 +46,8 @@ export class TeamGuardGuard implements CanActivate {
         teammates: true,
       },
     });
+
+    console.log('sdfsf')
 
     if (!team) {
       throw new HttpException('TEAM_NOT_EXIST', HttpStatus.NOT_FOUND);

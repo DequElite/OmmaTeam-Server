@@ -56,7 +56,7 @@ export class TeammatesController {
   }
 
   @UseGuards(JwtauthGuard)
-  @Post('invite/accept')
+  @Post('acceptinvitation')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Accept team invitation' })
   @ApiBody({ type: AcceptInvationDto })
@@ -64,6 +64,7 @@ export class TeammatesController {
   @ApiResponse({ status: 404, description: 'Teammate or token not found' })
   @ApiResponse({ status: 400, description: 'Token expired or invalid' })
   public async acceptInvation(@Body() body: AcceptInvationDto) {
+     console.log('🔥 acceptInvation received body:', body);
     try {
       const { message, teamId } =
         await this.teammatesService.acceptInvation(body);

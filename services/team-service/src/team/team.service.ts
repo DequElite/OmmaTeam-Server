@@ -1,12 +1,35 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'omma-shared-lib';
 import { CreateTeamServiceDto } from './dto/createTeam.dto';
-import { User } from 'omma-shared-lib/generated/prisma';
+import { Team, User } from 'omma-shared-lib/generated/prisma';
 import { ChangeTeamNameDto } from './dto/changeTeam.dto';
 
 @Injectable()
 export class TeamService {
   constructor(private readonly prisma: PrismaService) {}
+
+  public async getTeamData(email: string, team: Team) {
+    const user = await this.checkIfUserExists(email);
+
+    let teamData: Team & { isLeader: boolean };
+
+    if (!team) {
+      throw new HttpException('TEAM_NOT_FOUND', HttpStatus.NOT_FOUND);
+    }
+
+    if (user && team?.leaderId === user.id) {
+      teamData = { ...team, isLeader: true };
+    } else {
+      teamData = { ...team, isLeader: false };
+    }
+
+    console.log(user, teamData)
+
+    return {
+      message: 'access granted',
+      team: teamData,
+    };
+  }
 
   public async changeTeamName(dto: ChangeTeamNameDto) {
     const isTeamExists = await this.checkIfTeamExistsById(dto.id);

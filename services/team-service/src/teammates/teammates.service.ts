@@ -35,6 +35,7 @@ export class TeammatesService {
   }
 
   public async inviteByMail(dto: InviteUserDto) {
+    console.log(dto);
     const user = await this.checkIfUserExists(dto.email);
     if (!user) {
       throw new HttpException('USER_NOT_EXIST', HttpStatus.NOT_FOUND);
@@ -92,6 +93,7 @@ export class TeammatesService {
   }
 
   public async acceptInvation(dto: AcceptInvationDto) {
+    console.log(dto);
     const teammate = await this.checkIfTeammateExistByAcceptInvation(
       dto.email,
       dto.inviteToken,
