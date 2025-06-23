@@ -85,7 +85,7 @@ export class TeammatesController {
   }
 
   @UseGuards(JwtauthGuard, TeamGuardGuard, IsTeamLeaderGuard)
-  @Delete('delete/:id')
+  @Post('delete/:id')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Delete teammate from team' })
   @ApiBody({ type: DeleteTeammateDto })

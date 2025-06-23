@@ -16,8 +16,14 @@ export class TeammatesService {
   ) {}
 
   public async deleteTeammtae(dto: DeleteTeammateDto) {
-    const teammate = await this.prisma.teammate.findUnique({
-      where: { id: dto.teammateId, teamId: dto.teamId },
+    const user = await this.checkIfUserExists(dto.teammateEmail);
+
+    if (!user) {
+      throw new HttpException('USER_NOT_FOUND', 404);
+    }
+
+    const teammate = await this.prisma.teammate.findFirst({
+      where: { userId: user?.id, teamId: dto.teamId },
     });
     if (!teammate) {
       throw new HttpException('TEAMMATE_NOT_EXISTS', HttpStatus.NOT_FOUND);

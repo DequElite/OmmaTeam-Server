@@ -30,8 +30,6 @@ export class DeleteTeammateDto {
   })
   teamId: string;
 
-  @IsUUID(undefined, {
-    message: 'TeammateeId must be a uuid',
-  })
-  teammateId: string;
+  @IsEmail()
+  teammateEmail: string;
 }
