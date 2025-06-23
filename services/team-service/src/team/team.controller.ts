@@ -7,6 +7,7 @@ import {
   HttpException,
   HttpStatus,
   InternalServerErrorException,
+  Patch,
   Post,
   Req,
   UseGuards,
@@ -182,7 +183,7 @@ export class TeamController {
   }
 
   @UseGuards(JwtauthGuard, TeamGuardGuard, IsTeamLeaderGuard)
-  @Post('/change/name/:id')
+  @Patch('/change/name/:id')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Change team name' })
   @ApiResponse({
