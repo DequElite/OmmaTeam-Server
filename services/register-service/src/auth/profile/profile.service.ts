@@ -14,6 +14,22 @@ export class ProfileService {
 		private readonly registerFunctions: RegisterFunctionsService,
 	) {}
 
+	public async logOut(userData: any){
+		const isUserExist = await this.checkIfUserExist(userData.email);
+		if (!isUserExist.isExist || !isUserExist.user) {
+			throw new HttpException('USER_NOT_EXIST', HttpStatus.NOT_FOUND);
+		}
+
+		return await this.prisma.additionalUserData.update({
+			where: {
+				userId: isUserExist.user.id,
+			},
+			data: {
+				refresh_token: null,
+			},
+		});
+	}
+
 	public async getUserTeamsData(email: string) {
 		const isUserExist =
 			await this.checkIfUserExistByEmailAndReturnTeamData(email);

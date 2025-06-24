@@ -15,7 +15,6 @@ import {
 import { TeamService } from './team.service';
 import { JwtauthGuard } from 'omma-shared-lib';
 import { TeamGuardGuard } from 'src/team-guard/team-guard.guard';
-import { Team, User } from 'omma-shared-lib/generated/prisma';
 import { CreateTeamControllerDto } from './dto/createTeam.dto';
 import { IsTeamLeaderGuard } from 'src/is-team-leader/is-team-leader.guard';
 import {
@@ -26,18 +25,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ChangeTeamDto } from './dto/changeTeam.dto';
-
-interface IRequestWithTeam extends Request {
-  team?: Team;
-}
-
-interface IRequestWithUser extends Request {
-  user?: User;
-}
-
-interface TeamResponse extends Team {
-  isLeader: boolean;
-}
+import { IRequestWithTeam, IRequestWithUser } from 'src/types/request.types';
 
 @ApiTags('Team')
 @Controller('team')

@@ -9,21 +9,37 @@ export class TeamService {
   constructor(private readonly prisma: PrismaService) {}
 
   public async getTeamData(email: string, team: Team) {
-    const user = await this.checkIfUserExists(email);
-
-    let teamData: Team & { isLeader: boolean };
-
     if (!team) {
       throw new HttpException('TEAM_NOT_FOUND', HttpStatus.NOT_FOUND);
     }
 
-    if (user && team?.leaderId === user.id) {
-      teamData = { ...team, isLeader: true };
-    } else {
-      teamData = { ...team, isLeader: false };
+    const user = await this.checkIfUserExists(email);
+
+    if (!user) {
+      throw new HttpException('USER_NOT_EXISTS', HttpStatus.BAD_REQUEST);
     }
 
-    console.log(user, teamData)
+    const teammate = await this.prisma.teammate.findFirst({
+      where: {
+        userId: user.id,
+        teamId: team.id,
+      },
+    });
+
+    if (!teammate) {
+      throw new HttpException('TEAMMATE_NOT_FOUND', HttpStatus.FORBIDDEN);
+    }
+
+    const isTeammate = !!teammate && teammate.isAccepted;
+    const isLeader = team.leaderId === user.id;
+
+    const teamData = {
+      ...team,
+      isTeammate,
+      isLeader,
+    };
+
+    console.log(user, teamData);
 
     return {
       message: 'access granted',

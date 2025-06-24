@@ -7,6 +7,7 @@ import {
 	HttpStatus,
 	InternalServerErrorException,
 	Patch,
+	Post,
 	Req,
 	Res,
 	UseGuards,
@@ -169,6 +170,39 @@ export class ProfileController {
 				accessToken,
 			};
 		} catch (err) {
+
+			if (err.getStatus) {
+				throw err;
+			}
+
+			throw new InternalServerErrorException('INTERNAL_SERVER_ERROR');
+		}
+	}
+
+	@UseGuards(JwtauthGuard)
+	@Post('/logout')
+	@ApiOperation({ summary: 'Log out' })
+	@HttpCode(HttpStatus.OK)
+	public async logOut(
+		@Req() req: Request,
+		@Res({ passthrough: true }) res: Response,
+	) {
+		try {
+			await this.profileService.logOut(req.user);
+
+			const isProd = process.env.NODE_ENV === 'production';
+
+			res.clearCookie('refreshToken', {
+				httpOnly: true,
+				secure: isProd,
+				sameSite: isProd ? 'none' : 'lax',
+			});
+
+			return {
+				message: 'logged out success',
+			};
+		} catch (err) {
+			console.error('Error during log out: ', err);
 
 			if (err.getStatus) {
 				throw err;

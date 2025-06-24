@@ -32,7 +32,11 @@ export class IsTeamLeaderGuard implements CanActivate {
         id: teamId,
       },
       include: {
-        teammates: true,
+        teammates: {
+          include: {
+            user: true,
+          },
+        },
       },
     });
 

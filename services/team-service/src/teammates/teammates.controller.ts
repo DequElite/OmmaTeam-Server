@@ -2,11 +2,13 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpCode,
   HttpException,
   HttpStatus,
   InternalServerErrorException,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { TeammatesService } from './teammates.service';
@@ -20,10 +22,39 @@ import {
   InviteUserDto,
 } from './dto/Invite.dto';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
+import { IRequestWithTeam } from 'src/types/request.types';
 
 @Controller('teammates')
 export class TeammatesController {
   constructor(private readonly teammatesService: TeammatesService) {}
+
+  @UseGuards(JwtauthGuard, TeamGuardGuard)
+  @Get('/:id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get teammares' })
+  @ApiParam({ name: 'id', required: true, description: 'Team ID' })
+  public getTeammates(@Req() req: IRequestWithTeam) {
+    try {
+      const team = req.team;
+
+      if (!team) {
+        throw new HttpException('TEAM_NOT_FOUND', HttpStatus.NOT_FOUND);
+      }
+
+      return {
+        message: 'access granted',
+        teammates: team.teammates,
+      };
+    } catch (err) {
+      console.error('Error during creating team:', err);
+
+      if (err instanceof HttpException) {
+        throw err;
+      }
+
+      throw new InternalServerErrorException('INTERNAL_SERVER_ERROR');
+    }
+  }
 
   @UseGuards(JwtauthGuard, TeamGuardGuard, IsTeamLeaderGuard)
   @Post('invite/:id')
@@ -45,7 +76,7 @@ export class TeammatesController {
         message,
       };
     } catch (err) {
-      console.error('Error during creating team:', err);
+      console.error('Error during inviting user:', err);
 
       if (err instanceof HttpException) {
         throw err;
@@ -74,7 +105,7 @@ export class TeammatesController {
         teamId,
       };
     } catch (err) {
-      console.error('Error during acceping invation:', err);
+      console.error('Error during accepting invation:', err);
 
       if (err instanceof HttpException) {
         throw err;
