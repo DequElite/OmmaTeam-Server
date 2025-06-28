@@ -1,12 +1,16 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { PrismaService } from 'omma-shared-lib';
+import { PrismaService, RedisService } from 'omma-shared-lib';
 import { CreateTeamServiceDto } from './dto/createTeam.dto';
 import { Team, User } from 'omma-shared-lib/generated/prisma';
 import { ChangeTeamNameDto } from './dto/changeTeam.dto';
+import { CachedTeam } from 'src/types/team.types';
 
 @Injectable()
 export class TeamService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly redis: RedisService,
+  ) {}
 
   public async getTeamData(email: string, team: Team) {
     if (!team) {
@@ -53,14 +57,23 @@ export class TeamService {
       throw new HttpException('TEAM_NOT_FOUND', HttpStatus.NOT_FOUND);
     }
 
-    await this.prisma.team.update({
+    const team = await this.prisma.team.update({
       where: {
         id: dto.id,
+      },
+      include: {
+        teammates: {
+          include: {
+            user: true,
+          },
+        },
       },
       data: {
         name: dto.name,
       },
     });
+
+    await this.redis.setTeam<CachedTeam>(team.id, team);
 
     return {
       message: 'Team name changed success',
@@ -109,6 +122,9 @@ export class TeamService {
     await this.prisma.team.delete({
       where: { id: teamId },
     });
+
+    await this.redis.delTeam(teamId);
+
     return {
       message: 'Team deleted successfully',
     };
