@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { MailService, PrismaService } from 'omma-shared-lib';
+import { MailService, PrismaService, RedisService } from 'omma-shared-lib';
 import {
   AcceptInvationDto,
   DeleteTeammateDto,
@@ -7,12 +7,14 @@ import {
 } from './dto/Invite.dto';
 import { randomUUID } from 'crypto';
 import inviteEmail from './inviteEmail.template';
+import { CachedTeam } from 'src/types/team.types';
 
 @Injectable()
 export class TeammatesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly mail: MailService,
+    private readonly redis: RedisService,
   ) {}
 
   public async deleteTeammtae(dto: DeleteTeammateDto) {
@@ -34,6 +36,25 @@ export class TeammatesService {
         id: teammate.id,
       },
     });
+
+    const team = await this.prisma.team.findUnique({
+      where: {
+        id: dto.teamId,
+      },
+      include: {
+        teammates: {
+          include: {
+            user: true,
+          },
+        },
+      },
+    });
+
+    if (!team) {
+      throw new HttpException('TEAM_NOT_FOUND', 404);
+    }
+
+    await this.redis.setTeam<CachedTeam>(team.id, team);
 
     return {
       message: 'Teammate deleted success',
@@ -118,6 +139,25 @@ export class TeammatesService {
 
     await this.saveAcceptedTeammateData(teammate.id);
 
+    const team = await this.prisma.team.findUnique({
+      where: {
+        id: teammate.teamId,
+      },
+      include: {
+        teammates: {
+          include: {
+            user: true,
+          },
+        },
+      },
+    });
+
+    if (!team) {
+      throw new HttpException('TEAM_NOT_FOUND', 404);
+    }
+
+    await this.redis.setTeam<CachedTeam>(team.id, team);
+
     return {
       message: 'Invation accepted success',
       teamId: teammate.teamId,
@@ -185,7 +225,16 @@ export class TeammatesService {
   }
 
   private async checkIfTeamExist(teamId: string) {
-    return await this.prisma.team.findUnique({ where: { id: teamId } });
+    return await this.prisma.team.findUnique({
+      where: { id: teamId },
+      include: {
+        teammates: {
+          include: {
+            user: true,
+          },
+        },
+      },
+    });
   }
 
   private async getUser(email: string) {
