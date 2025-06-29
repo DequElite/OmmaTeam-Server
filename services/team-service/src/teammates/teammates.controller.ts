@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   HttpCode,
   HttpException,
@@ -13,9 +12,7 @@ import {
 } from '@nestjs/common';
 import { TeammatesService } from './teammates.service';
 import { console } from 'inspector';
-import { JwtauthGuard } from 'omma-shared-lib';
-import { TeamGuardGuard } from 'src/team-guard/team-guard.guard';
-import { IsTeamLeaderGuard } from 'src/is-team-leader/is-team-leader.guard';
+import { IsTeamLeaderGuard, JwtauthGuard, TeamGuardGuard } from 'omma-shared-lib';
 import {
   AcceptInvationDto,
   DeleteTeammateDto,

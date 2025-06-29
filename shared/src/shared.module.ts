@@ -1,11 +1,13 @@
 import { Module } from '@nestjs/common';
-import { JwtauthGuard } from './guards/jwtauth.guard';
-import { PrismaService } from './prisma/prisma.service';
-import { MailService } from './mail/mail.service';
-import { RedisService } from './redis/redis.service';
+import { JwtauthGuard } from './guards/Jwt/jwtauth.guard';
+import { PrismaService } from './services/prisma/prisma.service';
+import { MailService } from './services/mail/mail.service';
+import { RedisService } from './services/redis/redis.service';
+import { IsTeamLeaderGuard } from './guards/Team/is-team-leader/is-team-leader.guard';
+import { TeamGuardGuard } from './guards/Team/team-guard/team-guard.guard';
 
 @Module({
-    providers: [JwtauthGuard, PrismaService, MailService, RedisService],
-    exports: [JwtauthGuard, PrismaService, MailService, RedisService],
+    providers: [JwtauthGuard, PrismaService, MailService, RedisService, IsTeamLeaderGuard, TeamGuardGuard],
+    exports: [JwtauthGuard, PrismaService, MailService, RedisService, IsTeamLeaderGuard, TeamGuardGuard],
 })
 export class SharedModule {}
