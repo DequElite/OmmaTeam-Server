@@ -13,7 +13,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { TeamService } from './team.service';
-import { IsTeamLeaderGuard, JwtauthGuard, TeamGuardGuard } from 'omma-shared-lib';
+import {
+  IsTeamLeaderGuard,
+  JwtauthGuard,
+  TeamGuardGuard,
+} from 'omma-shared-lib';
 import { CreateTeamControllerDto } from './dto/createTeam.dto';
 import {
   ApiBody,
