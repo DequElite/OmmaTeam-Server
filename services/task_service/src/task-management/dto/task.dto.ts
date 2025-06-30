@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import { IsArray, IsDate, IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
 import { SubTask, TasksHardLevels, TasksTypes } from 'omma-shared-lib/generated/prisma';
 
@@ -21,7 +22,12 @@ export class CreateTaskDto {
     @IsString({message: 'description must be a string'})
     description: string;
 
-    @IsArray({message:''})
+    @IsArray({ message: 'subtasks must be an array' })
     @IsOptional()
     subtasks?: SubTask[];
+}
+
+export class CreateTaskServiceDto extends CreateTaskDto {
+    @IsUUID(undefined, { message: 'teamId must be an uuid' })
+    teamId: string;
 }
