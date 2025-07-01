@@ -2,12 +2,17 @@ import { CanActivate, ExecutionContext, Injectable, InternalServerErrorException
 import { Request } from 'express';
 import { Observable } from 'rxjs';
 import * as jwt from "jsonwebtoken";
+import { PrismaService } from 'src/services/prisma/prisma.service';
 
 @Injectable()
 export class JwtauthGuard implements CanActivate {
-  canActivate(
+  constructor(
+    private readonly prisma: PrismaService,
+  ) {}
+
+  async canActivate(
     context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
+  ): Promise<boolean> {
 
     const req = context.switchToHttp().getRequest<Request>();
     const authHeader = req.headers.authorization;
@@ -23,7 +28,16 @@ export class JwtauthGuard implements CanActivate {
     }
 
     try {
-      const decodedUserData = jwt.verify(userToken as string, process.env.JWT_SECRET as string);
+      const decodedUserData = jwt.verify(userToken as string, process.env.JWT_SECRET as string) as jwt.JwtPayload & { email: string };
+
+      const user = await this.prisma.user.findUnique({
+        where: { email: decodedUserData.email },
+      });
+
+      if (!user) {
+        throw new UnauthorizedException('User not found');
+      }
+
       req['user'] = decodedUserData;
       return true;
     } catch (err) {
