@@ -13,6 +13,7 @@ import {
 import { DataManagementService } from './data-management.service';
 import { JwtauthGuard, TeamGuardGuard } from 'omma-shared-lib';
 import { Request } from 'express';
+import { GetTaskDto } from './dto/data.dto';
 
 @Controller('data-management')
 export class DataManagementController {
@@ -56,9 +57,26 @@ export class DataManagementController {
   async getTask(
     @Param('id') teamId: string,
     @Req() req: Request,
-    @Body() body,
+    @Body() body: GetTaskDto,
   ) {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const user = req['user'];
+      if (!user) {
+        throw new HttpException('USER_NOT_EXISTS', HttpStatus.BAD_REQUEST);
+      }
+
+      const { message, task } = await this.dataManagementService.getTask({
+        ...body,
+        teamId,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+        userEmail: user.email,
+      });
+
+      return {
+        message,
+        task,
+      };
     } catch (err) {
       console.error('Error during getting task:', err);
 
@@ -70,4 +88,3 @@ export class DataManagementController {
     }
   }
 }
-

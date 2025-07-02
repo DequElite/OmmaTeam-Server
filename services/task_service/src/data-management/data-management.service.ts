@@ -1,12 +1,49 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'omma-shared-lib';
-import { GetUserTasksServiceDto } from './dto/data.dto';
+import { GetTaskServiceDto, GetUserTasksServiceDto } from './dto/data.dto';
+import { Task } from 'omma-shared-lib/generated/prisma';
 
 @Injectable()
 export class DataManagementService {
   constructor(private readonly prisma: PrismaService) {}
 
   public async getUserTasks(body: GetUserTasksServiceDto) {
+    const { teammate } = await this.FullTeammateChecker({
+      teamId: body.teamId,
+      userEmail: body.userEmail,
+    });
+
+    return {
+      message: 'Access granted',
+      tasks: teammate.assigned_tasks,
+    };
+  }
+
+  public async getTask(body: GetTaskServiceDto) {
+    const { team, user } = await this.FullTeammateChecker({
+      teamId: body.teamId,
+      userEmail: body.userEmail,
+    });
+
+    const task = await this.checkIfUserCanSeeThisTask(
+      body.taskId,
+      team.id,
+      user.id,
+    );
+    if (!task) {
+      throw new HttpException('TASK_NOT_FOUND', HttpStatus.NOT_FOUND);
+    }
+
+    return {
+      message: 'Access granted',
+      task,
+    };
+  }
+
+  private async FullTeammateChecker(body: {
+    teamId: string;
+    userEmail: string;
+  }) {
     const team = await this.checkIfTeamExists(body.teamId);
     if (!team) {
       throw new HttpException('TEAM_NOT_FOUND', HttpStatus.NOT_FOUND);
@@ -23,8 +60,9 @@ export class DataManagementService {
     }
 
     return {
-      message: 'Access granted',
-      tasks: teammate.assigned_tasks,
+      team,
+      user,
+      teammate,
     };
   }
 
@@ -58,5 +96,40 @@ export class DataManagementService {
     });
 
     return teammate;
+  }
+
+  private async checkIfUserCanSeeThisTask(
+    taskId: string,
+    teamId: string,
+    userID: string,
+  ) {
+    const team = await this.checkIfTeamExists(teamId);
+    if (!team) {
+      throw new HttpException('TEAM_NOT_FOUND', HttpStatus.NOT_FOUND);
+    }
+
+    const task = await this.prisma.task.findUnique({
+      where: {
+        id: taskId,
+      },
+    });
+    if (!task) {
+      throw new HttpException('TASK_NOT_FOUND', HttpStatus.NOT_FOUND);
+    }
+
+    const teammate = await this.checkIfTeamMateExists(team.id, userID);
+    if (!teammate) {
+      throw new HttpException('TEAMMATE_NOT_FOUND', HttpStatus.NOT_FOUND);
+    }
+
+    if (team?.leaderId === userID) {
+      return task;
+    }
+
+    if (task.assignedToId === teammate.id) {
+      return task;
+    }
+
+    return null;
   }
 }
