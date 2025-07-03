@@ -25,7 +25,13 @@ import {
   DeleteTaskDto,
 } from './dto/task.dto';
 import { Request } from 'express';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 @ApiTags('Task Management')
 @Controller('task-management')
@@ -77,6 +83,12 @@ export class TaskManagementController {
   @UseGuards(JwtauthGuard, TeamGuardGuard, IsTeamLeaderGuard)
   @Delete('delete/:id')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Delete a task by ID (admin only)' })
+  @ApiParam({ name: 'id', description: 'Team ID' })
+  @ApiBody({ type: DeleteTaskDto })
+  @ApiResponse({ status: 200, description: 'Task successfully deleted' })
+  @ApiResponse({ status: 404, description: 'Team or task not found' })
+  @ApiResponse({ status: 403, description: 'Access denied' })
   async delete(@Body() body: DeleteTaskDto, @Param('id') teamId: string) {
     try {
       const { message } = await this.taskManagementService.deleteTask({
@@ -101,6 +113,12 @@ export class TaskManagementController {
   @UseGuards(JwtauthGuard, TeamGuardGuard)
   @Patch('subtask/:id')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Mark a subtask as completed' })
+  @ApiParam({ name: 'id', description: 'Team ID' })
+  @ApiBody({ type: CheckSubTaskDto })
+  @ApiResponse({ status: 200, description: 'Subtask marked as completed' })
+  @ApiResponse({ status: 404, description: 'Team, task or subtask not found' })
+  @ApiResponse({ status: 403, description: 'User not in the team' })
   async checkSubTask(
     @Body() body: CheckSubTaskDto,
     @Param('id') teamId: string,
@@ -137,6 +155,12 @@ export class TaskManagementController {
   @UseGuards(JwtauthGuard, TeamGuardGuard)
   @Patch('complete/:id')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Mark a task as completed (only if subtasks done)' })
+  @ApiParam({ name: 'id', description: 'Team ID' })
+  @ApiBody({ type: CompleteTaskDto })
+  @ApiResponse({ status: 200, description: 'Task marked as completed' })
+  @ApiResponse({ status: 400, description: 'Subtasks are not completed yet' })
+  @ApiResponse({ status: 404, description: 'Team, teammate or task not found' })
   async completeTask(
     @Body() body: CompleteTaskDto,
     @Param('id') teamId: string,

@@ -18,7 +18,15 @@ import {
 } from 'omma-shared-lib';
 import { Request } from 'express';
 import { GetTaskDto } from './dto/data.dto';
+import {
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
+@ApiTags('data Management')
 @Controller('data-management')
 export class DataManagementController {
   constructor(private readonly dataManagementService: DataManagementService) {}
@@ -26,6 +34,13 @@ export class DataManagementController {
   @UseGuards(JwtauthGuard, TeamGuardGuard)
   @Get('/tasks/personal/:id')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Get tasks assigned to the current user in a specific team',
+  })
+  @ApiParam({ name: 'id', description: 'Team ID' })
+  @ApiResponse({ status: 200, description: 'Tasks successfully retrieved' })
+  @ApiResponse({ status: 404, description: 'TEAM_NOT_FOUND' })
+  @ApiResponse({ status: 403, description: 'FORBIDDEN_TEAM' })
   async getUserTasks(@Param('id') teamId: string, @Req() req: Request) {
     try {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -58,6 +73,13 @@ export class DataManagementController {
   @UseGuards(JwtauthGuard, TeamGuardGuard)
   @Get('/task/:id')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Get a specific task by ID if user is leader or assigned',
+  })
+  @ApiParam({ name: 'id', description: 'Team ID' })
+  @ApiBody({ type: GetTaskDto })
+  @ApiResponse({ status: 200, description: 'Task successfully retrieved' })
+  @ApiResponse({ status: 404, description: 'TASK_NOT_FOUND' })
   async getTask(
     @Param('id') teamId: string,
     @Req() req: Request,
@@ -95,6 +117,14 @@ export class DataManagementController {
   @UseGuards(JwtauthGuard, TeamGuardGuard, IsTeamLeaderGuard)
   @Get('/tasks/all/:id')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get all tasks in a team (only for team leader)' })
+  @ApiParam({ name: 'id', description: 'Team ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'All team tasks successfully retrieved',
+  })
+  @ApiResponse({ status: 400, description: 'USER_NOT_EXISTS' })
+  @ApiResponse({ status: 403, description: 'USER_NOT_TEAM_LEADER' })
   async getAllTeamTasks(@Param('id') teamId: string, @Req() req: Request) {
     try {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
