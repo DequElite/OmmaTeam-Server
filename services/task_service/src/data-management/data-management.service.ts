@@ -1,11 +1,29 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'omma-shared-lib';
-import { GetTaskServiceDto, GetUserTasksServiceDto } from './dto/data.dto';
-import { Task } from 'omma-shared-lib/generated/prisma';
+import {
+  GetAllTeamTasksDto,
+  GetTaskServiceDto,
+  GetUserTasksServiceDto,
+} from './dto/data.dto';
 
 @Injectable()
 export class DataManagementService {
   constructor(private readonly prisma: PrismaService) {}
+
+  public async getAllTeamTasks(body: GetAllTeamTasksDto) {
+    const { user, team } = await this.FullTeammateChecker(body);
+
+    if (team.leaderId !== user.id) {
+      throw new HttpException('USER_NOT_LEADER', HttpStatus.FORBIDDEN);
+    }
+
+    const tasks = team.tasks;
+
+    return {
+      message: 'Access Granted',
+      tasks,
+    };
+  }
 
   public async getUserTasks(body: GetUserTasksServiceDto) {
     const { teammate } = await this.FullTeammateChecker({
@@ -70,6 +88,13 @@ export class DataManagementService {
     const team = await this.prisma.team.findUnique({
       where: {
         id: teamId,
+      },
+      include: {
+        tasks: {
+          include: {
+            subtasks: true,
+          },
+        },
       },
     });
 

@@ -11,7 +11,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { DataManagementService } from './data-management.service';
-import { JwtauthGuard, TeamGuardGuard } from 'omma-shared-lib';
+import {
+  IsTeamLeaderGuard,
+  JwtauthGuard,
+  TeamGuardGuard,
+} from 'omma-shared-lib';
 import { Request } from 'express';
 import { GetTaskDto } from './dto/data.dto';
 
@@ -20,7 +24,7 @@ export class DataManagementController {
   constructor(private readonly dataManagementService: DataManagementService) {}
 
   @UseGuards(JwtauthGuard, TeamGuardGuard)
-  @Get('/user-tasks/:id')
+  @Get('/tasks/personal/:id')
   @HttpCode(HttpStatus.OK)
   async getUserTasks(@Param('id') teamId: string, @Req() req: Request) {
     try {
@@ -79,6 +83,39 @@ export class DataManagementController {
       };
     } catch (err) {
       console.error('Error during getting task:', err);
+
+      if (err instanceof HttpException) {
+        throw err;
+      }
+
+      throw new InternalServerErrorException('INTERNAL_SERVER_ERROR');
+    }
+  }
+
+  @UseGuards(JwtauthGuard, TeamGuardGuard, IsTeamLeaderGuard)
+  @Get('/tasks/all/:id')
+  @HttpCode(HttpStatus.OK)
+  async getAllTeamTasks(@Param('id') teamId: string, @Req() req: Request) {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const user = req['user'];
+      if (!user) {
+        throw new HttpException('USER_NOT_EXISTS', HttpStatus.BAD_REQUEST);
+      }
+
+      const { message, tasks } =
+        await this.dataManagementService.getAllTeamTasks({
+          teamId,
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+          userEmail: user.email,
+        });
+
+      return {
+        message,
+        tasks,
+      };
+    } catch (err) {
+      console.error('Error during getting all team tasks:', err);
 
       if (err instanceof HttpException) {
         throw err;
