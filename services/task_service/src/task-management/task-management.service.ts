@@ -114,6 +114,12 @@ export class TaskManagementService {
       throw new HttpException('TEAM_NOT_FOUND', HttpStatus.NOT_FOUND);
     }
 
+    await this.prisma.subTask.deleteMany({
+      where: {
+        taskId: body.taskId,
+      },
+    });
+
     await this.prisma.task.delete({
       where: {
         id: body.taskId,

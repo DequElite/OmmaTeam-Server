@@ -74,7 +74,7 @@ export class DataManagementService {
 
     const teammate = await this.checkIfTeamMateExists(body.teamId, user.id);
     if (!teammate) {
-      throw new HttpException('TEAMMATE_NOT_FOUND', HttpStatus.NOT_FOUND);
+      throw new HttpException('TEAMMATE_NOT_FOUND', HttpStatus.FORBIDDEN);
     }
 
     return {
@@ -93,6 +93,17 @@ export class DataManagementService {
         tasks: {
           include: {
             subtasks: true,
+            assignedTo: {
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    username: true,
+                    email: true,
+                  },
+                },
+              },
+            },
           },
         },
       },
@@ -116,7 +127,21 @@ export class DataManagementService {
         userId,
       },
       include: {
-        assigned_tasks: true,
+        assigned_tasks: {
+          include: {
+            assignedTo: {
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    username: true,
+                    email: true,
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     });
 
@@ -136,6 +161,19 @@ export class DataManagementService {
     const task = await this.prisma.task.findUnique({
       where: {
         id: taskId,
+      },
+      include: {
+        assignedTo: {
+          include: {
+            user: {
+              select: {
+                username: true,
+              },
+            },
+          },
+        },
+        subtasks: true,
+        team: true,
       },
     });
     if (!task) {

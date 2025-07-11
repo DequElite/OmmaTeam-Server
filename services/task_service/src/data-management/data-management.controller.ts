@@ -7,6 +7,7 @@ import {
   HttpStatus,
   InternalServerErrorException,
   Param,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -17,11 +18,10 @@ import {
   TeamGuardGuard,
 } from 'omma-shared-lib';
 import { Request } from 'express';
-import { GetTaskDto } from './dto/data.dto';
 import {
-  ApiBody,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -77,13 +77,14 @@ export class DataManagementController {
     summary: 'Get a specific task by ID if user is leader or assigned',
   })
   @ApiParam({ name: 'id', description: 'Team ID' })
-  @ApiBody({ type: GetTaskDto })
+  @ApiQuery({ name: 'taskId', description: 'Task ID' })
   @ApiResponse({ status: 200, description: 'Task successfully retrieved' })
   @ApiResponse({ status: 404, description: 'TASK_NOT_FOUND' })
+  @ApiResponse({ status: 403, description: 'You are not teammate' })
   async getTask(
     @Param('id') teamId: string,
     @Req() req: Request,
-    @Body() body: GetTaskDto,
+    @Query('taskId') taskId: string,
   ) {
     try {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -93,7 +94,7 @@ export class DataManagementController {
       }
 
       const { message, task } = await this.dataManagementService.getTask({
-        ...body,
+        taskId,
         teamId,
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
         userEmail: user.email,
