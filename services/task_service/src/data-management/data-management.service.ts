@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'omma-shared-lib';
 import {
   GetAllTeamTasksDto,
+  GetAllUserTasksFromAllTeamsDto,
   GetTaskServiceDto,
   GetUserTasksServiceDto,
 } from './dto/data.dto';
@@ -9,6 +10,45 @@ import {
 @Injectable()
 export class DataManagementService {
   constructor(private readonly prisma: PrismaService) {}
+
+  public async getAllUserTasksFromAllTeams({
+    userEmail,
+  }: GetAllUserTasksFromAllTeamsDto) {
+    const user = await this.checkIfUserExists(userEmail);
+    if (!user) {
+      throw new HttpException('USER_NOT_FOUND', HttpStatus.NOT_FOUND);
+    }
+
+    const tasks = await this.prisma.teammate.findMany({
+      where: {
+        userId: user.id,
+        isAccepted: true,
+      },
+      select: {
+        assigned_tasks: {
+          select: {
+            id: true,
+            title: true,
+            deadline: true,
+            type: true,
+            hardLevel: true,
+            isCompleted: true,
+            teamId: true,
+          },
+          where: {
+            isCompleted: false,
+          },
+        },
+      },
+    });
+
+    const tasksFlat = tasks.flatMap((teammate) => teammate.assigned_tasks);
+
+    return {
+      tasks: tasksFlat,
+      message: 'Access granted',
+    };
+  }
 
   public async getAllTeamTasks(body: GetAllTeamTasksDto) {
     const { user, team } = await this.FullTeammateChecker(body);

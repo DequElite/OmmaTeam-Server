@@ -31,6 +31,43 @@ import {
 export class DataManagementController {
   constructor(private readonly dataManagementService: DataManagementService) {}
 
+  @UseGuards(JwtauthGuard)
+  @Get('/tasks/personal/all')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Get all user tasks assigned at all user teams',
+  })
+  @ApiResponse({ status: 200, description: 'Tasks successfully retrieved' })
+  @ApiResponse({ status: 404, description: 'USER_NOT_FOUND' })
+  async getAllUserTasksFromAllTeams(@Req() req: Request) {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const user = req['user'];
+      if (!user) {
+        throw new HttpException('USER_NOT_EXISTS', HttpStatus.BAD_REQUEST);
+      }
+
+      const { message, tasks } =
+        await this.dataManagementService.getAllUserTasksFromAllTeams({
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+          userEmail: user.email,
+        });
+
+      return {
+        message,
+        tasks,
+      };
+    } catch (err) {
+      console.error('Error during getting all user task:', err);
+
+      if (err instanceof HttpException) {
+        throw err;
+      }
+
+      throw new InternalServerErrorException('INTERNAL_SERVER_ERROR');
+    }
+  }
+
   @UseGuards(JwtauthGuard, TeamGuardGuard)
   @Get('/tasks/personal/:id')
   @HttpCode(HttpStatus.OK)
@@ -41,7 +78,7 @@ export class DataManagementController {
   @ApiResponse({ status: 200, description: 'Tasks successfully retrieved' })
   @ApiResponse({ status: 404, description: 'TEAM_NOT_FOUND' })
   @ApiResponse({ status: 403, description: 'FORBIDDEN_TEAM' })
-  async getUserTasks(@Param('id') teamId: string, @Req() req: Request) {
+  async getUserTeamTasks(@Param('id') teamId: string, @Req() req: Request) {
     try {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const user = req['user'];

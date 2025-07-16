@@ -115,6 +115,30 @@ export class TeamService {
       throw new HttpException('TEAM_NOT_FOUND', HttpStatus.NOT_FOUND);
     }
 
+    await this.prisma.message.deleteMany({
+      where: {
+        sender: {
+          teamId: teamId,
+        },
+      },
+    });
+
+    await this.prisma.subTask.deleteMany({
+      where: {
+        task: {
+          teamId: teamId,
+        },
+      },
+    });
+
+    await this.prisma.task.deleteMany({
+      where: {
+        assignedTo: {
+          teamId: teamId,
+        },
+      },
+    });
+
     await this.prisma.teammate.deleteMany({
       where: { teamId },
     });

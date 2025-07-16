@@ -12,7 +12,11 @@ import {
 } from '@nestjs/common';
 import { TeammatesService } from './teammates.service';
 import { console } from 'inspector';
-import { IsTeamLeaderGuard, JwtauthGuard, TeamGuardGuard } from 'omma-shared-lib';
+import {
+  IsTeamLeaderGuard,
+  JwtauthGuard,
+  TeamGuardGuard,
+} from 'omma-shared-lib';
 import {
   AcceptInvationDto,
   DeleteTeammateDto,
@@ -92,7 +96,6 @@ export class TeammatesController {
   @ApiResponse({ status: 404, description: 'Teammate or token not found' })
   @ApiResponse({ status: 400, description: 'Token expired or invalid' })
   public async acceptInvation(@Body() body: AcceptInvationDto) {
-     console.log('🔥 acceptInvation received body:', body);
     try {
       const { message, teamId } =
         await this.teammatesService.acceptInvation(body);

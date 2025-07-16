@@ -57,3 +57,12 @@ export class GetAllTeamTasksDto {
   @IsEmail()
   userEmail: string;
 }
+
+export class GetAllUserTasksFromAllTeamsDto {
+  @ApiProperty({
+    example: 'leader@example.com',
+    description: 'Email of the team leader',
+  })
+  @IsEmail()
+  userEmail: string;
+}
