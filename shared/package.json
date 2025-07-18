@@ -2,7 +2,7 @@
   "name": "omma-shared-lib",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "version": "0.1.03",
+  "version": "0.1.07",
   "description": "Shared library for OmmaTeam project",
   "author": "",
   "private": false,

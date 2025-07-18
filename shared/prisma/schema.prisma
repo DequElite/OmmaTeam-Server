@@ -1,11 +1,123 @@
 generator client {
-  provider = "prisma-client-js"
-  output   = "../generated/prisma"
+  provider      = "prisma-client-js"
+  output        = "../generated/prisma"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String              @id @default(uuid())
+  email           String              @unique
+  username        String              @unique
+  password        String
+  createdAt       DateTime            @default(now()) @map("created_at")
+  role            UsersRoles          @default(USER)
+  teams           Teammate[]          @relation("UserTeammate")
+  additional_data AdditionalUserData?
+  teamsAsLeader   Team[]              @relation("TeamLeader")
+
+  @@map("users")
+}
+
+model AdditionalUserData {
+  id                        String         @id @default(uuid())
+  is_email_verified         Boolean?       @default(false)
+  email_verification_token  String?
+  password_reset_token      String?        @unique
+  password_reset_expires_at DateTime?
+  userId                    String         @unique
+  refresh_token             String?
+  notifications             Notification[] @relation("UserNotifications")
+  user                      User           @relation(fields: [userId], references: [id])
+
+  @@map("additional_user_data")
+}
+
+model Notification {
+  id                   String             @id @default(uuid())
+  additionalUserDataId String
+  desc                 String
+  DateOfSend           DateTime           @default(now())
+  additionalUserData   AdditionalUserData @relation("UserNotifications", fields: [additionalUserDataId], references: [id])
+}
+
+model Team {
+  id        String     @id @default(uuid())
+  name      String     @unique
+  leaderId  String
+  createdAt DateTime   @default(now()) @map("created_at")
+  teammates Teammate[] @relation("TeamTeammate")
+  team_chat Chat?      @relation("TeamChat")
+  tasks     Task[]     @relation("TeamTask")
+  leader    User       @relation("TeamLeader", fields: [leaderId], references: [id])
+
+  @@map("teams")
+}
+
+model Teammate {
+  id              String    @id @default(uuid())
+  userId          String?
+  inviteToken     String?   @unique
+  inviteExpiresAt DateTime?
+  isAccepted      Boolean   @default(false)
+  teamId          String
+  team            Team      @relation("TeamTeammate", fields: [teamId], references: [id])
+  user            User?     @relation("UserTeammate", fields: [userId], references: [id])
+  sentMessages    Message[] @relation("UserMessages")
+  assigned_tasks  Task[]    @relation("UserTasks")
+}
+
+model Task {
+  id           String          @id @default(uuid())
+  title        String
+  createdAt    DateTime        @default(now()) @map("created_at")
+  deadline     DateTime
+  type         TasksTypes      @default(DEFAULT)
+  hardLevel    TasksHardLevels @default(EASY) @map("hard_level")
+  isCompleted  Boolean         @default(false) @map("is_completed")
+  description  String?
+  teamId       String
+  assignedToId String
+  subtasks     SubTask[]       @relation("SubTasks")
+  assignedTo   Teammate        @relation("UserTasks", fields: [assignedToId], references: [id])
+  team         Team            @relation("TeamTask", fields: [teamId], references: [id])
+
+  @@map("tasks")
+}
+
+model SubTask {
+  id     String         @id @default(uuid())
+  name   String
+  status SubTasksStatus @default(IN_THE_PROGRESS)
+  taskId String
+  task   Task           @relation("SubTasks", fields: [taskId], references: [id])
+
+  @@map("subtasks")
+}
+
+model Chat {
+  id       String    @id @default(uuid())
+  teamID   String    @unique
+  team     Team      @relation("TeamChat", fields: [teamID], references: [id])
+  messages Message[] @relation("ChatMessages")
+
+  @@map("chats")
+}
+
+model Message {
+  id           String   @id @default(uuid())
+  chatId       String
+  createdAt    DateTime @default(now()) @map("created_at")
+  senderId     String
+  message_text String
+  chat         Chat     @relation("ChatMessages", fields: [chatId], references: [id])
+  sender       Teammate @relation("UserMessages", fields: [senderId], references: [id])
+
+  @@map("messages")
 }
 
 enum UsersRoles {
@@ -32,150 +144,4 @@ enum SubTasksStatus {
 enum NotificationTypes {
   GLOBAL
   PERSONAL
-}
-
-model User {
-  id       String @id @default(uuid())
-  email    String @unique
-  username String @unique
-  password String
-
-  createdAt DateTime   @default(now()) @map("created_at")
-  role      UsersRoles @default(USER)
-
-  additional_data AdditionalUserData?
-
-  teams         Teammate[] @relation("UserTeammate")
-  teamsAsLeader Team[] @relation("TeamLeader")
-
-  @@map("users")
-}
-
-model AdditionalUserData {
-  id String @id @default(uuid())
-
-  refresh_token String?
-
-  is_email_verified        Boolean? @default(false)
-  email_verification_token String?
-
-  password_reset_token      String? @unique
-  password_reset_expires_at DateTime?
-
-  user   User   @relation(fields: [userId], references: [id])
-  userId String @unique
-
-  notifications Notification[] @relation("UserNotifications")
-
-  @@map("additional_user_data")
-}
-
-model Notification {
-  id String @id @default(uuid())
-
-  // type NotificationTypes @default(GLOBAL)
-
-  additionalUserData   AdditionalUserData   @relation("UserNotifications", fields: [additionalUserDataId], references: [id])
-  additionalUserDataId String 
-
-  desc String
-
-  DateOfSend DateTime @default(now())
-}
-
-model Team {
-  id String @id @default(uuid())
-
-  name     String @unique
-  leader   User   @relation("TeamLeader", fields: [leaderId], references: [id])
-  leaderId String
-
-  createdAt DateTime @default(now()) @map("created_at")
-
-  teammates Teammate[] @relation("TeamTeammate")
-
-  tasks Task[] @relation("TeamTask")
-
-  team_chat Chat? @relation("TeamChat")
-
-  @@map("teams")
-}
-
-model Teammate {
-  id String @id @default(uuid())
-
-  user   User?   @relation("UserTeammate", fields: [userId], references: [id])
-  userId String?
-
-  inviteToken String? @unique
-  inviteExpiresAt DateTime? 
-  isAccepted Boolean @default(false)
-
-  team Team @relation("TeamTeammate", fields: [teamId], references: [id])
-  teamId String
-
-  assigned_tasks Task[]    @relation("UserTasks")
-  sentMessages   Message[] @relation("UserMessages")
-}
-
-model Task {
-  id String @id @default(uuid())
-
-  title     String
-  createdAt DateTime @default(now()) @map("created_at")
-  deadline  DateTime
-
-  type        TasksTypes      @default(DEFAULT)
-  hardLevel   TasksHardLevels @default(EASY) @map("hard_level")
-  isCompleted Boolean         @default(false) @map("is_completed")
-
-  description String?
-  subtasks    SubTask[] @relation("SubTasks")
-
-  team   Team   @relation("TeamTask", fields: [teamId], references: [id])
-  teamId String
-
-  assignedTo   Teammate   @relation("UserTasks", fields: [assignedToId], references: [id])
-  assignedToId String
-
-  @@map("tasks")
-}
-
-model SubTask {
-  id String @id @default(uuid())
-
-  name   String
-  status SubTasksStatus @default(IN_THE_PROGRESS)
-
-  task   Task   @relation("SubTasks", fields: [taskId], references: [id])
-  taskId String
-
-  @@map("subtasks")
-}
-
-model Chat {
-  id String @id @default(uuid())
-
-  team   Team   @relation("TeamChat", fields: [teamID], references: [id])
-  teamID String @unique
-
-  messages Message[] @relation("ChatMessages")
-
-  @@map("chats")
-}
-
-model Message {
-  id String @id @default(uuid())
-
-  chat   Chat   @relation("ChatMessages", fields: [chatId], references: [id])
-  chatId String
-
-  createdAt DateTime @default(now()) @map("created_at")
-
-  sender   Teammate   @relation("UserMessages", fields: [senderId], references: [id])
-  senderId String
-
-  message_text String
-
-  @@map("messages")
 }

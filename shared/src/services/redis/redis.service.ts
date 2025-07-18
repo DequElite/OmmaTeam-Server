@@ -7,9 +7,12 @@ export class RedisService implements OnModuleDestroy {
     private client: Redis;
 
     constructor(){
+        const host = process.env.REDIS_HOST || 'localhost';
+        const port = parseInt(process.env.REDIS_PORT || '6379', 10);
+
         this.client = new Redis({
-            host: 'localhost',
-            port: 6379
+            host,
+            port,
         });
 
         this.client.on('connect', () => {

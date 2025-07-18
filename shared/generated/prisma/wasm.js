@@ -128,12 +128,12 @@ exports.Prisma.UserScalarFieldEnum = {
 
 exports.Prisma.AdditionalUserDataScalarFieldEnum = {
   id: 'id',
-  refresh_token: 'refresh_token',
   is_email_verified: 'is_email_verified',
   email_verification_token: 'email_verification_token',
   password_reset_token: 'password_reset_token',
   password_reset_expires_at: 'password_reset_expires_at',
-  userId: 'userId'
+  userId: 'userId',
+  refresh_token: 'refresh_token'
 };
 
 exports.Prisma.NotificationScalarFieldEnum = {
