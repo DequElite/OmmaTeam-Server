@@ -192,6 +192,14 @@ exports.Prisma.MessageScalarFieldEnum = {
   message_text: 'message_text'
 };
 
+exports.Prisma.FeedbackScalarFieldEnum = {
+  id: 'id',
+  rate: 'rate',
+  desc: 'desc',
+  createdAt: 'createdAt',
+  userId: 'userId'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -227,6 +235,12 @@ exports.SubTasksStatus = exports.$Enums.SubTasksStatus = {
   COMPLETED: 'COMPLETED'
 };
 
+exports.FeedbackRates = exports.$Enums.FeedbackRates = {
+  EXCELLENT: 'EXCELLENT',
+  AVERAGE: 'AVERAGE',
+  BAD: 'BAD'
+};
+
 exports.Prisma.ModelName = {
   User: 'User',
   AdditionalUserData: 'AdditionalUserData',
@@ -236,7 +250,8 @@ exports.Prisma.ModelName = {
   Task: 'Task',
   SubTask: 'SubTask',
   Chat: 'Chat',
-  Message: 'Message'
+  Message: 'Message',
+  Feedback: 'Feedback'
 };
 
 /**

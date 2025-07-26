@@ -19,6 +19,7 @@ model User {
   teams           Teammate[]          @relation("UserTeammate")
   additional_data AdditionalUserData?
   teamsAsLeader   Team[]              @relation("TeamLeader")
+  feedbacks       Feedback[]          @relation("UserFeedback")
 
   @@map("users")
 }
@@ -118,6 +119,23 @@ model Message {
   sender       Teammate @relation("UserMessages", fields: [senderId], references: [id])
 
   @@map("messages")
+}
+
+model Feedback {
+  id        String        @id @default(uuid())
+  rate      FeedbackRates
+  desc      String
+  createdAt DateTime      @default(now()) @map("created_at")
+  userId    String
+  user      User          @relation("UserFeedback", fields: [userId], references: [id])
+
+  @@map("feedbacks")
+}
+
+enum FeedbackRates {
+  EXCELLENT
+  AVERAGE
+  BAD
 }
 
 enum UsersRoles {
